@@ -33,4 +33,4 @@
 - [x] 5.2 调整真实回归报告结构，保留路由、分类、limit 策略和 final backend 等证据字段，避免把样本错配直接统计成产品缺陷
 - [x] 5.3 系统性更新受影响测试集，使测试验证 normalized request、provider adaptation、request-aware auto routing 和 failure classification，而不是固化旧内部字段或旧候选顺序
 - [x] 5.4 运行最小自动化回归集，至少覆盖 schema/resolver、provider handlers、facade、rendering、CLI regression、multi-backend scaffold
-- [ ] 5.5 运行一轮最小真实命令回归子集，验证 A 股 / 美股 / auto / 重路径命令在新分类和新路由下的结果可解释性
+- [x] 5.5 运行一轮最小真实命令回归子集，验证 A 股 / 美股 / auto / 重路径命令在新分类和新路由下的结果可解释性
