@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>efinance-cli 第二次测试结果分析</title>
+<style>
+:root {
+  --bg: #edf4f8;
+  --paper: #f9fcfe;
+  --panel: rgba(255, 255, 255, 0.86);
+  --ink: #18222c;
+  --muted: #4a5a67;
+  --line: #d4dde5;
+  --soft: #e4ebf1;
+  --accent: #2f6488;
+  --good: #2f6a58;
+  --warn: #86653d;
+  --risk: #9c5151;
+  --code: #1a2834;
+  --inline: #e6eef4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(180deg, #f2f8fb 0%, var(--bg) 58%, #e8eff4 100%);
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+  line-height: 1.82;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(47, 100, 136, 0.28);
+}
+
+code {
+  padding: 0.08rem 0.34rem;
+  border-radius: 4px;
+  background: var(--inline);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.95em;
+}
+
+pre {
+  margin: 12px 0 0;
+  padding: 14px 16px;
+  overflow: auto;
+  border: 1px solid #162430;
+  background: var(--code);
+  color: #edf7ff;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+article {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 38px 36px 30px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #f4f9fc 0%, #edf4f8 100%);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(63, 93, 117, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 93, 117, 0.06) 1px, transparent 1px);
+  background-size: 100% 1.7rem, 1.7rem 100%;
+  pointer-events: none;
+}
+
+.eyebrow {
+  position: relative;
+  margin: 0 0 0.9rem;
+  color: #5f707d;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+h1 {
+  position: relative;
+  margin: 0;
+  font-size: 2.48rem;
+  line-height: 1.16;
+  font-weight: 700;
+}
+
+.lead {
+  position: relative;
+  max-width: 56rem;
+  margin: 1.15rem 0 0;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.metrics,
+.two {
+  display: grid;
+  gap: 16px;
+}
+
+.metrics {
+  position: relative;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.6rem;
+}
+
+.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric,
+.box,
+.case,
+.ref {
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.metric {
+  padding: 0.95rem 1rem;
+}
+
+.metric strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 1.7rem;
+  line-height: 1.12;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--line);
+  background: #f3f7fa;
+}
+
+.section {
+  margin-top: 2.25rem;
+  padding-top: 1.45rem;
+  border-top: 1px solid var(--soft);
+}
+
+.section:first-of-type {
+  margin-top: 1.9rem;
+}
+
+h2,
+h3,
+h4 {
+  margin: 0 0 0.95rem;
+  line-height: 1.34;
+}
+
+h2 {
+  font-size: 1.74rem;
+}
+
+h3 {
+  font-size: 1.18rem;
+  margin-top: 1.2rem;
+}
+
+p {
+  margin: 0 0 0.92rem;
+}
+
+ul,
+ol {
+  margin: 0.82rem 0 0.92rem 1.3rem;
+  padding: 0;
+}
+
+li {
+  margin: 0.35rem 0;
+}
+
+.box,
+.case,
+.ref {
+  padding: 16px 18px;
+  margin: 14px 0;
+  background: var(--paper);
+}
+
+.good {
+  border-left: 4px solid var(--good);
+}
+
+.warn {
+  border-left: 4px solid var(--warn);
+}
+
+.risk {
+  border-left: 4px solid var(--risk);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 0.24rem 0.58rem;
+  border: 1px solid var(--line);
+  background: #eef4f8;
+  font-size: 0.82rem;
+  color: #334452;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.97rem;
+  background: var(--paper);
+}
+
+th,
+td {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  background: #eaf1f6;
+  text-align: left;
+}
+
+.footer-note {
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 920px) {
+  .metrics,
+  .two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  article {
+    padding: 20px 14px 56px;
+  }
+
+  .hero {
+    padding: 28px 20px 24px;
+  }
+
+  h1 {
+    font-size: 1.95rem;
+  }
+
+  .metrics,
+  .two {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<article>
+  <header class="hero">
+    <p class="eyebrow">Second Full Regression Analysis / 2026-06-03</p>
+    <h1>efinance-cli 第二次测试结果分析</h1>
+    <p class="lead">本页把第二次全量真实 API 回归的结果、脚本口径和源码链路放在一起复盘。核心判断是：这轮回归最致命的问题不是“失败多”，而是 <code>timeout</code> 吞掉了几乎全部测试时间；同时，<code>auto</code> 的真实 fallback 价值被脚本低估，少数确定性适配缺陷又把本可快速修复的问题放大成了用户侧的硬失败。</p>
+    <div class="metrics">
+      <div class="metric"><strong>79</strong><span class="small">总用例，覆盖 53 个唯一命令路径</span></div>
+      <div class="metric"><strong>29 / 7 / 13 / 30</strong><span class="small">pass / degraded / fail / timeout</span></div>
+      <div class="metric"><strong>5410.651s</strong><span class="small">总耗时，其中 5265.512s 来自 timeout</span></div>
+      <div class="metric"><strong>73.5%</strong><span class="small">剔除 timeout 后，非超时样本有效成功率</span></div>
+    </div>
+    <ul class="nav">
+      <li><a href="#judgement">结论先行</a></li>
+      <li><a href="#stats">统计重述</a></li>
+      <li><a href="#blindspots">口径盲区</a></li>
+      <li><a href="#root-causes">根因分组</a></li>
+      <li><a href="#cases">代表案例</a></li>
+      <li><a href="#script">脚本评估</a></li>
+      <li><a href="#priority">修复优先级</a></li>
+      <li><a href="#evidence">证据索引</a></li>
+    </ul>
+  </header>
+
+  <section id="judgement" class="section">
+    <h2>结论先行</h2>
+    <div class="box risk">
+      <p><strong>核心判断：</strong>第二次回归的主问题是 timeout 主导，而不是纯粹的功能错误。30 条 timeout 占全部用例 38.0%，却消耗了 97.3% 的总执行时间；这直接把 CLI 的真实体验从“部分命令失败”放大成“整体长时间无响应”。</p>
+    </div>
+    <div class="two">
+      <div class="box warn">
+        <p><strong>用户体验层面：</strong><code>auto</code> 当前不是稳定兜底，而是“在少数快失败场景有价值，在长挂起场景几乎无感”。当首候选快速抛异常时，它能给出聚合错误或继续 fallback；当首候选或单个 provider 长时间挂起时，外层 180 秒总超时会吞没一切。</p>
+      </div>
+      <div class="box good">
+        <p><strong>工程层面：</strong>确定性源码缺陷并不分散，主要集中在 5 个簇：catalog/enrichment 不一致、<code>stock price live</code> 参数适配、日期参数归一化、<code>watch</code> 首帧输出顺序、脚本判级盲区。这些问题可被较小范围修复，并不需要大改架构。</p>
+      </div>
+    </div>
+    <p>从非超时样本看，49 条用例里有 36 条达到 <code>pass</code> 或 <code>degraded</code>，有效成功率 73.5%，平均耗时 2.962 秒。这说明项目并不是“全面不可用”；更准确的描述是：<strong>可返回的路径里大部分还能工作，但 timeout 与少数适配缺陷把总体感知拖到了很差的水平。</strong></p>
+  </section>
+
+  <section id="stats" class="section">
+    <h2>统计重述</h2>
+    <table>
+      <thead>
+        <tr><th>维度</th><th>总数</th><th>pass</th><th>degraded</th><th>fail</th><th>timeout</th><th>备注</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>全部样本</td><td>79</td><td>29</td><td>7</td><td>13</td><td>30</td><td>strict pass 36.7%，effective success 45.6%</td></tr>
+        <tr><td>非超时样本</td><td>49</td><td>29</td><td>7</td><td>13</td><td>0</td><td>有效成功率 73.5%，平均耗时 2.962s</td></tr>
+        <tr><td>总耗时</td><td colspan="6">5410.651s，其中 timeout 累计 5265.512s，占比 97.3%</td></tr>
+      </tbody>
+    </table>
+    <div class="box warn">
+      <p>如果只看第一层 summary，会以为这是一组“失败很多”的结果；但把时间维度放进去以后，真正吞噬用户体验与回归成本的是 timeout，而不是 fail 本身。第二次回归的结论应该优先围绕“为什么卡这么久”来展开，而不是只围绕“为什么没过”。</p>
+    </div>
+
+    <h3>按 backend 拆分</h3>
+    <table>
+      <thead>
+        <tr><th>backend</th><th>总数</th><th>pass</th><th>degraded</th><th>fail</th><th>timeout</th><th>有效成功率</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>efinance</td><td>50</td><td>27</td><td>7</td><td>7</td><td>9</td><td>68.0%</td></tr>
+        <tr><td>auto</td><td>11</td><td>1</td><td>0</td><td>2</td><td>8</td><td>9.1%</td></tr>
+        <tr><td>akshare</td><td>6</td><td>1</td><td>0</td><td>1</td><td>4</td><td>16.7%</td></tr>
+        <tr><td>yfinance</td><td>11</td><td>0</td><td>0</td><td>3</td><td>8</td><td>0.0%</td></tr>
+        <tr><td>watch wrapper</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0.0%</td></tr>
+      </tbody>
+    </table>
+    <p>这张表最值得注意的不是 “efinance 最好”，而是 <code>auto</code> 几乎完全被 timeout 拖住了。auto 不是没有 fallback 能力，但它当前的执行与观测方式，让大量 case 在用户层面表现成“等很久仍然没有结果”。</p>
+
+    <h3>按类别拆分</h3>
+    <table>
+      <thead>
+        <tr><th>类别</th><th>pass</th><th>degraded</th><th>fail</th><th>timeout</th><th>观察</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>bond</td><td>3</td><td>1</td><td>2</td><td>1</td><td>债券面的问题更偏确定性 defect 与 warning 漏检</td></tr>
+        <tr><td>fund</td><td>12</td><td>1</td><td>0</td><td>4</td><td>基金是第二次回归里相对最健康的类别</td></tr>
+        <tr><td>futures</td><td>0</td><td>1</td><td>0</td><td>3</td><td>期货几乎完全被 silent timeout 主导</td></tr>
+        <tr><td>market</td><td>1</td><td>0</td><td>0</td><td>1</td><td>实时市场行情存在静默超时</td></tr>
+        <tr><td>quote</td><td>2</td><td>1</td><td>1</td><td>9</td><td>quote 路径大面积超时，尤其是 auto/yfinance</td></tr>
+        <tr><td>resolve</td><td>1</td><td>0</td><td>0</td><td>0</td><td>解析类命令表现稳定</td></tr>
+        <tr><td>search</td><td>2</td><td>0</td><td>0</td><td>3</td><td>search 不是不可执行，而是很容易被长耗时吞掉</td></tr>
+        <tr><td>stock</td><td>8</td><td>3</td><td>10</td><td>8</td><td>股票类别问题最密集，兼有适配缺陷与超时</td></tr>
+        <tr><td>watch</td><td>0</td><td>0</td><td>0</td><td>1</td><td>watch 的失败更多是框架设计问题</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="blindspots" class="section">
+    <h2>脚本口径的解释边界</h2>
+    <p><code>scripts/run_incremental_full_regression.py</code> 本身做了很多正确的事：用项目 <code>.venv</code> Python，校验矩阵完整性，持续刷新报告。但它也有明确的观测盲区。</p>
+    <table>
+      <thead>
+        <tr><th>盲区</th><th>当前行为</th><th>影响</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>backend_meta 只从 JSON stdout 提取</td><td><code>extract_backend_meta()</code> 只在 stdout 是可解析 dict JSON 时工作（389-403、477-480）</td><td><code>auto_stats</code> 会低估真实 fallback；timeout 与非 JSON 输出几乎看不到 candidate 链</td></tr>
+        <tr><td>failure 分类先匹配网络关键词</td><td><code>classify_failure()</code> 在 416-417 行把 <code>502/503/504</code> 视为网络错误</td><td><code>stock-holders-latest-count</code> 因日期字符串里包含 <code>20250331</code> 被误记为 <code>network-upstream</code></td></tr>
+        <tr><td>pass/degraded 不检查 stdout 语义级警告</td><td>状态机只看 returncode、stderr、artifact 与 JSON 解析（483-488 行）</td><td><code>bond-trades__efinance</code> 第一行已提示代码可能有误，却仍被记成 pass</td></tr>
+        <tr><td>timeout 没有候选级 trace</td><td>外层只知道 subprocess 到点被杀（468-471 行）</td><td>无法判断 auto 卡在第几个候选、provider 内重试了几次、卡在哪个调用</td></tr>
+      </tbody>
+    </table>
+    <p>因此第二次 JSON 和结论文档可以回答“哪些 case 没过”，但不能单独回答“auto 兜底到底有没有价值”或“180 秒到底耗在哪一层”。这部分必须结合源码链路一起看。</p>
+    <div class="box good">
+      <p><strong>脚本本身的优点不能忽略：</strong>它在开头就明确写明“使用项目虚拟环境调用真实 CLI 与真实第三方 API，覆盖全部叶子命令、全部支持 backend 和代表性运行时模式”，并在 45-46 行把 CLI 前缀固定到 <code>.venv\Scripts\python.exe</code>；<code>validate_case_matrix()</code> 还会校验命令覆盖、backend 覆盖、参数覆盖和 runtime tag 覆盖（299-347 行）。也就是说，第二次回归暴露出的系统性问题，基本不是“矩阵过窄”导致的假象。</p>
+    </div>
+  </section>
+
+  <section id="root-causes" class="section">
+    <h2>根因分组</h2>
+
+    <h3>1. 串行 failover 与 provider 统一重试叠加，放大 timeout</h3>
+    <p><code>AUTO_CANDIDATE_ORDER</code> 在 <code>opentrade/backends/resolver.py:13-17</code> 固定为 AKSHARE -&gt; YFINANCE -&gt; EFINANCE。<code>CommandFacade._invoke_auto()</code> 在 <code>opentrade/facade.py:65-85</code> 串行逐个尝试候选；每个 non-side-effect handler 又会在 <code>BackendProvider.execute()</code> 中进入 provider 级统一重试（<code>opentrade/backends/base.py:99-157</code>），底层重试器是 <code>Retry(max_retries=8, delay=True)</code>（<code>opentrade/retry_utils.py:38</code>）。这意味着一个候选只要长时间不返回，就会独占掉几乎全部 180 秒预算，后续候选根本没有展示机会。</p>
+    <div class="tags">
+      <span class="tag">resolver.py:13-17</span>
+      <span class="tag">facade.py:65-85</span>
+      <span class="tag">base.py:99-157</span>
+      <span class="tag">retry_utils.py:38</span>
+    </div>
+    <p><code>search__auto</code> 是最明确的证据：stderr 持续输出长进度条，说明 provider 已经深入执行，并非路由层直接失败；但外层 180 秒一到就被 subprocess 杀掉，最终只剩一个 timeout 结果。</p>
+
+    <h3>2. auto 的真实 fallback 被统计低估，但也确实不够强</h3>
+    <p><code>stock-price-latest__auto</code> 明确记录了 <code>candidate_chain=["yfinance", "efinance"]</code>、<code>final_backend="efinance"</code>，说明真实 fallback 成功发生过。与此同时，<code>auto_stats</code> 只有 1 次 fallback 成功，并不代表 auto 总体价值只有这一例，而是脚本只能在“命令返回且 stdout 是 JSON”时观察到它。</p>
+    <p>不过这不是给 auto 洗白。第二次回归里 auto 共 11 条，只拿到 1 条 pass、2 条 fail、8 条 timeout，实际用户感受仍然很差。更准确的说法是：<strong>auto 机制本身不是零价值，但它的观测口径和 timeout 行为都让价值显著打折。</strong></p>
+
+    <h3>3. catalog 与 enrichment/observation 回补链不一致，导致确定性源码缺陷</h3>
+    <p><code>bond.profile</code> 的失败不是上游接口波动，而是 CLI 自己在 observation 路径上把命令图谱接错了。默认非 raw 视图会在 <code>CommandExecutor.invoke()</code> 中进入 <code>enrich_market_data()</code> 和 <code>build_observation_output()</code>（<code>opentrade/executor.py:29-39</code>），<code>opentrade/observation.py:345-364</code> 随后调用 <code>fetch_standard_history_for_request()</code>。问题在于它为 <code>bond.profile</code> 解析出了 <code>bond.price.history</code>，但 <code>fetch_standard_history_for_request()</code> 却硬调用 <code>get_shared_command_definition()</code>（<code>opentrade/enrichment/service.py:160-169</code>），而 <code>bond.price.history</code> 并不在 <code>SHARED_COMMANDS</code> 中，只在 single-backend 集合里，最终触发 <code>KeyError: 未知共享命令: bond.price.history</code>（<code>opentrade/command_catalog.py:238-315</code>）。</p>
+    <p>这类问题的性质很明确：provider 主调用可能已经成功，真正坏掉的是共享增强链路。所以它属于可快速修复的产品层 defect，而不是“上游不可控”。</p>
+
+    <h3>4. <code>stock price live</code> 同时踩中了参数适配错误和 failover 截断</h3>
+    <p>参考 catalog 里，<code>stock price live</code> 的 <code>fs</code> 参数被定义为 <code>multiple=true</code> 且默认空列表（<code>.skill/opentrade/references/command-catalog.json:623-637</code>）；schema 构建后，<code>coerce_schema_value()</code> 会把它归一化成 Python 列表（<code>opentrade/request_schema.py:95-102</code>）。但 efinance 通用 handler 直接把 <code>request_data</code> 原样透传给上游函数（<code>opentrade/backends/providers.py:109-124</code>），于是 <code>stock-price-live__efinance</code> 最终把 <code>['m:0+t:6']</code> 传给了 <code>efinance.stock.get_realtime_quotes</code>，上游明确报错：<code>KeyError: 指定的行情参数 ['m:0+t:6'] 不正确</code>。</p>
+    <p>这还不是全部。<code>stock price live</code> 的 supported backends 是 efinance 和 akshare（<code>opentrade/command_catalog.py:80-81</code>），套入全局 auto 顺序后，auto 候选链实际变成 AKSHARE -&gt; EFINANCE。akshare handler 又在 <code>opentrade/backends/providers.py:304-325</code> 明确要求市场必须是 <code>A_stock</code>，测试值 <code>m:0+t:6</code> 会触发 <code>ValueError</code>。而 <code>is_failover_eligible_error()</code> 把 <code>ValueError</code> 视为不可 failover（<code>opentrade/facade.py:26-33</code>），所以 <code>stock-price-live__auto</code> 在第一跳就被截断，根本不会继续尝试 efinance。</p>
+    <p>结论不是“stock price live 两个 backend 都不行”，而是：<strong>一个 backend 参数不兼容，另一个 backend 候选被 failover 策略提前截断。</strong></p>
+
+    <h3>5. 日期参数缺少统一归一化，脚本还把其中一例误判成网络问题</h3>
+    <p><code>stock-holders-latest-count__efinance</code> 的真实异常是 <code>ValueError: time data '20250331' does not match format '%Y-%m-%d'</code>；<code>stock-leaderboard-daily__efinance</code> 同样是 <code>ValueError: time data '20250530' does not match format '%Y-%m-%d'</code>。这说明 CLI 层传入的是紧凑日期串，但 provider 或上游函数期望横杠格式日期。它们都属于确定性适配问题。</p>
+    <p>脚本又在 <code>classify_failure()</code> 里把 <code>503</code> 当成网络错误关键词（<code>scripts/run_incremental_full_regression.py:416-417</code>），所以 <code>20250331</code> 这例被误归到 <code>network-upstream</code>。这让问题看起来像随机网络波动，实际上不是。</p>
+
+    <h3>6. 上游网络问题真实存在，但第三方解析脆弱把波动放大成硬失败</h3>
+    <p><code>stock-profile__efinance</code> 先出现东财请求被远端断开，随后三方库在空或缺字段结果上继续执行，最终落到 <code>KeyError: ['股票代码']</code>。<code>stock-holders-top10__efinance</code> 则在 27 秒后因 <code>requests.exceptions.JSONDecodeError</code> 失败。<code>bond-flow-today__efinance</code> stdout 先打印 <code>证券代码 "113519" 可能有误</code>，随后上游 JSONPath 访问触发 <code>TypeError: 'bool' object is not subscriptable</code>。这些都说明：<strong>部分失败不是 CLI 自己路由错了，而是第三方库在异常响应、空响应或半结构化响应上的防守太弱。</strong></p>
+    <p><code>futures-price-history__efinance</code> 是相对合理的例子：stdout 仍输出 <code>{}</code>，stderr 记录东财网络异常，脚本将其记为 <code>degraded</code> 而不是 <code>fail</code>，这比直接炸栈更接近真实体验。</p>
+
+    <h3>7. <code>watch</code> 的空白 45 秒是设计结果，不是偶发</h3>
+    <p><code>create_watch_command()</code> 只是把子命令包装成带 <code>--watch</code> 的调用（<code>opentrade/commands.py:302-316</code>）。真正的循环逻辑在 <code>CommandExecutor._run_watch()</code>，但它先调用 <code>result = self.invoke(request)</code>，之后才 <code>click.echo(header)</code>（<code>opentrade/executor.py:49-69</code>）。因此如果第一次调用阻塞，用户在整个阻塞窗口里什么都看不到。<code>watch__none</code> 的 45 秒完全无 stdout/stderr，正是这个设计的直接体现。</p>
+
+    <h3>8. 存在一簇“无输出 180 秒超时”的静默挂死，需要补 trace 才能继续定位</h3>
+    <p><code>market-price-live__efinance</code>、<code>futures-catalog__efinance</code>、<code>futures-price-live__efinance</code>、<code>futures-trades__efinance</code>、多条 yfinance 和 auto 的 history/profile 命令都在 180 秒超时且 stdout/stderr 为空。仅凭第二次回归材料，能确认它们“没有在超时前完成”，但还不能确认是 provider 内部无超时网络调用、第三方库卡死、线程池等待，还是 observation 渲染链阻塞。这个簇的下一步必须是补候选级、provider 级 trace，而不是继续拍脑袋猜。</p>
+  </section>
+
+  <section id="cases" class="section">
+    <h2>代表案例深挖</h2>
+
+    <div class="case">
+      <h3><code>search__auto</code>：不是没执行，而是执行太久</h3>
+      <div class="tags">
+        <span class="tag">status: timeout</span>
+        <span class="tag">180.022s</span>
+        <span class="tag">backend: auto</span>
+      </div>
+      <p>stderr 持续出现 <code>0%|...| 351/872</code> 这样的进度条，说明 provider 已经在做大量候选处理。它证明 timeout 的关键问题不是“路由失败”，而是缺乏候选级预算和可观测性。</p>
+      <pre>D:\github-project\efinance-cli\.venv\Scripts\python.exe -X utf8 -m opentrade search --query AAPL --result-count 5 --use-local-cache --backend auto --format json --view raw --trace-window 4
+
+stderr:
+0%|          | 0/872 [00:00&lt;?, ?it/s]
+...
+40%|████      | 351/872 [02:52&lt;06:07, 1.42it/s]</pre>
+    </div>
+
+    <div class="case">
+      <h3><code>stock-price-latest__auto</code>：真实 fallback 成功的正例</h3>
+      <div class="tags">
+        <span class="tag">status: pass</span>
+        <span class="tag">7.61s</span>
+        <span class="tag">candidate_chain: yfinance -&gt; efinance</span>
+        <span class="tag">final_backend: efinance</span>
+      </div>
+      <p>这是第二次回归里最重要的正例之一。它证明 auto 不是伪功能，也证明第二次 JSON 里的 <code>auto_stats</code> 只是“能观测到的 fallback”，不是“真实发生过的 fallback 总数”。</p>
+      <pre>{
+  "requested_backend": "auto",
+  "resolved_backend": "auto",
+  "final_backend": "efinance",
+  "candidate_chain": ["yfinance", "efinance"]
+}</pre>
+    </div>
+
+    <div class="case">
+      <h3><code>stock-price-snapshot__auto</code>：快失败时，auto 的聚合报错反而有价值</h3>
+      <div class="tags">
+        <span class="tag">status: fail</span>
+        <span class="tag">3.2s</span>
+        <span class="tag">class: rate-limit</span>
+      </div>
+      <p>这个 case 没成功，但它展示了 auto 快失败路径的一个优点：系统能把候选链的失败原因收敛到一条异常里，而不是只留下第一个栈。stderr 明确给出两段真实失败原因：<code>yfinance</code> 限流；<code>efinance</code> 返回的 payload 缺少 <code>realtime-quotes</code> 所需字段。</p>
+      <pre>opentrade.facade.AutoBackendExecutionError: auto backend 候选链全部失败：
+- yfinance: Too Many Requests. Rate limited. Try after a while.
+- efinance: Contract 'realtime-quotes' 缺少关键字段: symbol, name, close</pre>
+    </div>
+
+    <div class="case">
+      <h3><code>bond-profile__efinance</code>：默认 observation 路径上的确定性 defect</h3>
+      <div class="tags">
+        <span class="tag">status: fail</span>
+        <span class="tag">0.808s</span>
+        <span class="tag">type: product defect</span>
+      </div>
+      <p>问题并不在东财接口本身，而在默认非 raw 输出会走 observation 与 enrichment 回补链。命令先成功进入默认视图，再在请求 <code>bond.price.history</code> 时因为 shared 与 single-backend catalog 不一致直接抛 <code>KeyError</code>。</p>
+      <pre>File "D:\github-project\efinance-cli\opentrade\enrichment\service.py", line 168, in fetch_standard_history_for_request
+  else get_shared_command_definition(history_command_key)
+File "D:\github-project\efinance-cli\opentrade\command_catalog.py", line 315, in get_shared_command_definition
+  raise KeyError(f"未知共享命令: {command_key}")
+KeyError: '未知共享命令: bond.price.history'</pre>
+    </div>
+
+    <div class="case">
+      <h3><code>stock price live</code> 三连：同一个需求被两个缺陷同时绊倒</h3>
+      <div class="tags">
+        <span class="tag">efinance: 0.637s fail</span>
+        <span class="tag">akshare: 0.706s fail</span>
+        <span class="tag">auto: 0.646s fail</span>
+      </div>
+      <p><code>efinance</code> 失败是因为 <code>fs</code> 被归一化成列表后又被原样透传；<code>akshare</code> 失败是因为只支持 <code>A_stock</code> 市场；<code>auto</code> 则因为首候选 akshare 抛出 <code>ValueError</code> 后被 failover 策略直接截断。</p>
+      <pre>stock-price-live__efinance:
+KeyError: "指定的行情参数 `['m:0+t:6']` 不正确"
+
+stock-price-live__akshare:
+ValueError: Akshare stock.price.live 当前仅支持 A_stock 市场
+
+stock-price-live__auto:
+ValueError: Akshare stock.price.live 当前仅支持 A_stock 市场</pre>
+    </div>
+
+    <div class="case">
+      <h3>两个日期类命令：确定性格式适配错误，却被脚本部分伪装成网络问题</h3>
+      <div class="tags">
+        <span class="tag">holders latest-count: 0.648s fail</span>
+        <span class="tag">leaderboard daily: 0.773s fail</span>
+      </div>
+      <pre>stock-holders-latest-count__efinance:
+ValueError: time data '20250331' does not match format '%Y-%m-%d'
+
+stock-leaderboard-daily__efinance:
+ValueError: time data '20250530' does not match format '%Y-%m-%d'</pre>
+      <p>这组 case 的重要性在于：它们不是上游随机波动，而是完全稳定可复现的适配缺陷。尤其 <code>stock-holders-latest-count</code> 还会因为字符串里包含 <code>503</code> 被 <code>classify_failure()</code> 误记成 <code>network-upstream</code>。</p>
+    </div>
+
+    <div class="case">
+      <h3><code>stock-profile__efinance</code>、<code>stock-holders-top10__efinance</code> 与 <code>bond-flow-today__efinance</code></h3>
+      <div class="tags">
+        <span class="tag">profile: 4.963s fail</span>
+        <span class="tag">top10: 27.057s fail</span>
+        <span class="tag">bond flow: 0.985s fail</span>
+      </div>
+      <pre>stock-profile__efinance:
+KeyError: ['股票代码']
+
+stock-holders-top10__efinance:
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+bond-flow-today__efinance:
+stdout: 证券代码 "113519" 可能有误
+stderr: TypeError: 'bool' object is not subscriptable</pre>
+      <p>这三例都说明第三方库在异常响应上的防御不够：网络断开、非 JSON 响应或不符合预期的结构，会很快被放大成硬栈错误，而不是被标准化成“可解释的 degraded”。</p>
+    </div>
+
+    <div class="case">
+      <h3><code>futures-price-history__efinance</code>：degraded 判级是合理的</h3>
+      <div class="tags">
+        <span class="tag">status: degraded</span>
+        <span class="tag">4.698s</span>
+        <span class="tag">class: network-upstream</span>
+      </div>
+      <p>这一例的 stdout 仍然有 <code>{}</code>，stderr 里清楚记录了 <code>RemoteDisconnected / MaxRetryError / ConnectionError</code>。脚本将其记为 degraded 而不是 fail，基本符合“有结果但质量受损”的真实语义。</p>
+    </div>
+
+    <div class="case">
+      <h3><code>watch__none</code>：空白 45 秒来自输出顺序设计</h3>
+      <div class="tags">
+        <span class="tag">status: timeout</span>
+        <span class="tag">45.01s</span>
+        <span class="tag">stdout/stderr: empty</span>
+      </div>
+      <p>这个 case 不是偶发卡死。因为 <code>_run_watch()</code> 只有在 <code>invoke()</code> 返回后才输出 header，所以第一次调用一旦阻塞，整个 watch 周期就会表现成“终端完全没有动静”。</p>
+      <pre>D:\github-project\efinance-cli\.venv\Scripts\python.exe -X utf8 -m opentrade watch --count 1 --interval 0.2 --no-clear quote price latest --quote-ids 105.AAPL --backend auto --format json --view raw --trace-window 4
+
+stdout: ""
+stderr: ""</pre>
+    </div>
+
+    <div class="case">
+      <h3><code>bond-trades__efinance</code>：被脚本记成 pass，但并不完全健康</h3>
+      <div class="tags">
+        <span class="tag">status: pass</span>
+        <span class="tag">0.942s</span>
+      </div>
+      <p>stdout 第一行就写着 <code>证券代码 "113519" 可能有误</code>，说明该命令至少存在“结果可能不可靠”信号。当前脚本完全不检查 stdout 里的语义级警告，所以会把这种 case 标成纯 pass，导致报告偏乐观。</p>
+    </div>
+  </section>
+
+  <section id="script" class="section">
+    <h2>对回测脚本的评估</h2>
+    <p><code>scripts/run_incremental_full_regression.py</code> 并不是一份随便拼起来的 smoke script。它有三个很有价值的工程特征：</p>
+    <ol>
+      <li>它明确固定使用项目虚拟环境解释器：<code>VENV_PYTHON = PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"</code>，CLI 前缀也直接绑定到这一路径（45-46 行）。</li>
+      <li>它在 docstring 与实现上都强调“全量矩阵 + 增量落盘”：脚本头部说明每条用例完成后都会刷新 JSON 与 HTML 报告，<code>validate_case_matrix()</code> 还会检查命令覆盖、backend 覆盖、业务参数覆盖和 runtime tag 覆盖（299-347 行）。</li>
+      <li>它会主动剥离本机代理环境变量（359-364 行），所以这批失败不能简单甩锅给本机代理配置。</li>
+    </ol>
+    <p>但作为“可解释的全量真实回归”脚本，它还有四块需要尽快补强：</p>
+    <table>
+      <thead>
+        <tr><th>问题</th><th>当前行为</th><th>建议</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>auto 观测过窄</td><td>只有 stdout 是 JSON dict 时才能抽出 backend_meta</td><td>无论输出格式如何，都在 CLI trace 或 stderr 里补 <code>requested/resolved/final backend</code> 与候选级耗时</td></tr>
+        <tr><td>failure 分类误判</td><td>字符串级匹配把日期中的 <code>503</code> 误当网络错误</td><td>先识别明确的 Python 异常类型，再做关键词兜底；数字匹配要带边界</td></tr>
+        <tr><td>pass 过宽</td><td>stdout 里的警告文本不会影响状态</td><td>把“代码可能有误”“空结果但无 stderr”等语义加入 degraded 规则</td></tr>
+        <tr><td>timeout 不可定位</td><td>只知道 subprocess 到 180 秒或 45 秒被杀</td><td>把 provider 级 trace、每个 candidate 的开始、结束、异常写入报告</td></tr>
+      </tbody>
+    </table>
+    <p>如果只修业务代码不修这份脚本，下一轮回归仍然会在“真实问题已变少，但报告解释力不够”上吃亏。</p>
+  </section>
+
+  <section id="priority" class="section">
+    <h2>修复优先级</h2>
+    <table>
+      <thead>
+        <tr><th>优先级</th><th>问题</th><th>原因</th><th>建议动作</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>P0</td><td>候选级 timeout 与 silent hang</td><td>30 条 timeout 吞掉 97.3% 总耗时，是当前最大体验与回归成本来源</td><td>为 auto/provider 增加 candidate 级总预算、开始结束 trace、每跳耗时与异常记录；必要时把外层 180 秒拆成候选级配额</td></tr>
+        <tr><td>P0</td><td><code>bond.profile</code> catalog/enrichment 不一致</td><td>确定性源码缺陷，修复成本低、收益直接</td><td>回补链改用 <code>get_command_definition()</code> 或显式兼容 single-backend history 命令</td></tr>
+        <tr><td>P0</td><td><code>stock price live</code> 适配错误</td><td>同一条用户命令在 efinance、akshare、auto 三路全失败</td><td>把 <code>fs</code> 归一化为单值字符串，或为 live 场景单独 schema；同时评估是否应把“backend 不支持当前 market”视为可 failover</td></tr>
+        <tr><td>P0</td><td>日期参数归一化</td><td>两个失败是稳定可复现的纯适配问题</td><td>在 CLI/provider 入口统一把 <code>YYYYMMDD</code> 转成 <code>YYYY-MM-DD</code> 或按上游要求分流</td></tr>
+        <tr><td>P1</td><td>脚本 failure 分类与 pass 判级</td><td>会把确定性 defect 写成网络波动，也会把 warning 结果写成纯 pass</td><td>改进 <code>classify_failure()</code> 与状态机，增加 stdout warning 识别</td></tr>
+        <tr><td>P1</td><td><code>watch</code> 首帧无输出</td><td>用户感知为“命令卡死”，排障成本高</td><td>先输出 header 或 starting line，再执行第一次 invoke；必要时加 spinner 或 phase trace</td></tr>
+        <tr><td>P1</td><td>第三方解析器脆弱</td><td>网络波动后直接炸成 KeyError 或 JSONDecodeError</td><td>在 provider 标准化前先做空响应、非 JSON、缺字段保护</td></tr>
+        <tr><td>P2</td><td>timeout 簇的精细归因</td><td>目前证据不足，容易误判</td><td>下一轮带 trace 重跑 <code>market/futures/yfinance</code> 静默超时簇，再决定是否需要 provider 专项限时或线程池调整</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="evidence" class="section">
+    <h2>源码证据索引</h2>
+    <table>
+      <thead>
+        <tr><th>位置</th><th>证明的事实</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>scripts/run_incremental_full_regression.py:1-6, 45-46, 299-347, 389-403, 406-424, 443-488, 528-555</code></td><td>脚本使用项目 <code>.venv</code>、校验覆盖矩阵、提取 backend_meta 的条件、failure 分类逻辑、状态机与 summary 口径</td></tr>
+        <tr><td><code>opentrade/backends/resolver.py:13-17, 34-42, 76-80</code></td><td>auto 候选顺序固定为 AKSHARE -&gt; YFINANCE -&gt; EFINANCE，且按命令支持矩阵过滤</td></tr>
+        <tr><td><code>opentrade/facade.py:26-33, 65-85</code></td><td>auto 串行尝试候选；<code>ValueError</code> 与 <code>TypeError</code> 被视为不可 failover</td></tr>
+        <tr><td><code>opentrade/retry_utils.py:31-38, 49-109</code></td><td>provider 级网络重试默认 <code>max_retries=8</code>，且 passthrough 异常直接透传</td></tr>
+        <tr><td><code>opentrade/backends/base.py:99-157</code></td><td>所有 non-side-effect handler 都会经由统一重试包装执行</td></tr>
+        <tr><td><code>opentrade/command_catalog.py:56-88, 118-143, 238-315</code></td><td>命令支持矩阵、schema 字段生成方式，以及 shared/single-backend catalog 的边界</td></tr>
+        <tr><td><code>.skill/opentrade/references/command-catalog.json:623-637, 1642-1656</code></td><td><code>stock price live</code> 的 <code>fs</code> 被定义为 <code>multiple=true</code>，而 <code>market price live</code> 的 <code>fs</code> 是单值</td></tr>
+        <tr><td><code>opentrade/request_schema.py:30-64, 67-102</code></td><td>Click option 与 schema 归一化会把 multiple 字段转成列表</td></tr>
+        <tr><td><code>opentrade/backends/providers.py:109-124, 304-325, 765-793, 918-956</code></td><td>efinance 通用 handler 直传 <code>request_data</code>；akshare live 市场限制；market 提取逻辑；yfinance 限流 guardrail 与 provider retry policy</td></tr>
+        <tr><td><code>opentrade/enrichment/service.py:146-197, 200-249</code></td><td>history 回补链如何解析目标 history command，以及为什么会命中 <code>bond.price.history</code></td></tr>
+        <tr><td><code>opentrade/observation.py:345-364</code></td><td>默认 observation 输出会调用 history 回补，放大 catalog/enrichment 不一致问题</td></tr>
+        <tr><td><code>opentrade/commands.py:302-316</code> 与 <code>opentrade/executor.py:41-69</code></td><td><code>watch</code> 首帧输出在 <code>invoke()</code> 之后，阻塞时终端会长时间空白</td></tr>
+      </tbody>
+    </table>
+    <div class="footer-note">
+      <p>原始执行明细请配合 <code>docs/20260601-第二次测试结论.html</code> 与 <code>docs/20260601-second-regression-results.json</code> 一起阅读；本页的职责是把“结果、脚本口径、源码根因”合并成可决策的分析结论。</p>
+    </div>
+  </section>
+</article>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>efinance-cli 20260601 综合测试结果分析</title>
+<style>
+:root {
+  --bg: #edf3f6;
+  --paper: rgba(255, 255, 255, 0.94);
+  --paper-strong: #f7fbfd;
+  --line: rgba(44, 82, 104, 0.18);
+  --ink: #17232d;
+  --muted: #536573;
+  --accent: #215d79;
+  --accent-soft: rgba(33, 93, 121, 0.1);
+  --good: #1f6b53;
+  --good-soft: rgba(31, 107, 83, 0.12);
+  --warn: #8b5a18;
+  --warn-soft: rgba(139, 90, 24, 0.1);
+  --risk: #8a3438;
+  --risk-soft: rgba(138, 52, 56, 0.11);
+  --code: #182833;
+  --code-ink: #eef8ff;
+  --shadow: 0 28px 70px rgba(18, 42, 57, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top right, rgba(33, 93, 121, 0.18), transparent 24%),
+    linear-gradient(180deg, #f7fbfd 0%, var(--bg) 100%);
+  font-family: "Georgia", "Times New Roman", "Noto Serif SC", serif;
+  line-height: 1.82;
+}
+
+code,
+pre {
+  font-family: "Cascadia Code", "Consolas", monospace;
+}
+
+code {
+  padding: 0.08rem 0.34rem;
+  border-radius: 5px;
+  background: #e7f0f5;
+}
+
+pre {
+  margin: 0.65rem 0 0;
+  padding: 0.95rem 1.05rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 10px;
+  background: var(--code);
+  color: var(--code-ink);
+  font-size: 0.84rem;
+  line-height: 1.58;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(10px);
+}
+
+.nav-inner,
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.nav-inner {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.15rem;
+  font-size: 0.92rem;
+}
+
+.page {
+  padding: 30px 18px 80px;
+}
+
+.hero,
+.section,
+.card,
+.box,
+.quote {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2.35rem 2rem;
+  border-radius: 28px;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(33, 93, 121, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 93, 121, 0.08) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.34), transparent 85%);
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 0.26rem 0.75rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0.9rem 0 0.5rem;
+  color: var(--accent);
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.14;
+}
+
+.hero p {
+  margin: 0.42rem 0;
+  color: var(--muted);
+}
+
+.metrics,
+.cards,
+.two {
+  display: grid;
+  gap: 1rem;
+}
+
+.metrics {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  margin-top: 1.45rem;
+}
+
+.cards {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.two {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card {
+  padding: 1rem 1.08rem;
+  border-radius: 18px;
+}
+
+.num {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.section {
+  margin-top: 2rem;
+  padding: 1.3rem 1.35rem;
+  border-radius: 22px;
+}
+
+.section h2 {
+  margin: 0 0 0.95rem;
+  color: var(--accent);
+  font-size: 1.58rem;
+}
+
+.section h3 {
+  margin: 1.1rem 0 0.45rem;
+  color: var(--accent);
+  font-size: 1.08rem;
+}
+
+.box,
+.quote {
+  margin-top: 1rem;
+  padding: 1rem 1.05rem;
+  border-radius: 16px;
+}
+
+.good {
+  background: linear-gradient(180deg, var(--good-soft), rgba(255, 255, 255, 0.96));
+}
+
+.warn {
+  background: linear-gradient(180deg, var(--warn-soft), rgba(255, 255, 255, 0.96));
+}
+
+.risk {
+  background: linear-gradient(180deg, var(--risk-soft), rgba(255, 255, 255, 0.96));
+}
+
+.quote {
+  background: linear-gradient(180deg, var(--accent-soft), rgba(255, 255, 255, 0.97));
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: var(--paper-strong);
+}
+
+.table th,
+.table td {
+  padding: 0.72rem 0.82rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.table th {
+  background: rgba(33, 93, 121, 0.08);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+ul,
+ol {
+  margin: 0.75rem 0 0.4rem 1.25rem;
+  padding: 0;
+}
+
+li {
+  margin: 0.34rem 0;
+}
+
+.footer {
+  margin-top: 1.4rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 800px) {
+  .page {
+    padding: 20px 14px 56px;
+  }
+
+  .hero {
+    padding: 2rem 1.2rem;
+  }
+
+  .section {
+    padding: 1.05rem 0.95rem;
+  }
+}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">综合判断</a>
+    <a href="#compare">两轮对比</a>
+    <a href="#common">共同根因</a>
+    <a href="#delta">判断变化</a>
+    <a href="#priority">综合优先级</a>
+    <a href="#evidence">证据链路</a>
+  </div>
+</div>
+<main class="page">
+  <section class="hero" id="overview">
+    <span class="eyebrow">Daily Synthesis</span>
+    <h1>efinance-cli 20260601 综合测试结果分析</h1>
+    <p>本页把 <a href="/D:/github-project/efinance-cli/docs/20260601-第二次测试结果分析.html">第二次测试结果分析</a> 与 <a href="/D:/github-project/efinance-cli/docs/20260601-第三次测试结果分析.html">第三次测试结果分析</a> 聚合成一份可决策的综合文档。目标不是重复两份单次复盘，而是把同一天两轮回归放在统一口径下回答三个问题：问题有没有收敛、真正的主矛盾是什么、下一轮修复该先打哪里。</p>
+    <p>综合判断可以压缩成一句话：<strong>当天系统的主失效模式始终是超时与长挂起，但第三次分析进一步证明，不能把所有坏结果都归因于产品本身，至少有一部分是脚本样本与 provider 真实约束不对齐。</strong></p>
+    <div class="metrics">
+      <article class="card">
+        <div class="num">2 轮</div>
+        <div class="label">已聚合分析页</div>
+      </article>
+      <article class="card">
+        <div class="num">79 / 81</div>
+        <div class="label">第二次 / 第三次样本数</div>
+      </article>
+      <article class="card">
+        <div class="num">30 / 35</div>
+        <div class="label">第二次 / 第三次超时数</div>
+      </article>
+      <article class="card">
+        <div class="num">1 / 11</div>
+        <div class="label">两轮都只观察到 1 条 auto 真实兜底成功</div>
+      </article>
+    </div>
+    <div class="cards" style="margin-top: 1rem;">
+      <article class="card">
+        <div class="label">关联原始文档</div>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第二次测试结论.html">第二次测试结论</a></p>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第三次测试结论.html">第三次测试结论</a></p>
+      </article>
+      <article class="card">
+        <div class="label">关联分析文档</div>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第二次测试结果分析.html">第二次测试结果分析</a></p>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第三次测试结果分析.html">第三次测试结果分析</a></p>
+      </article>
+      <article class="card">
+        <div class="label">关联结果集</div>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-second-regression-results.json">second-regression-results.json</a></p>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-third-regression-results.json">third-regression-results.json</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="compare">
+    <h2>两轮结果对比</h2>
+    <p>两轮结果集的摘要结构并不一致。第二次有 <code>strict_pass</code> 与 <code>degraded</code>，第三次直接给出 <code>pass / fail / timeout</code>。因此本页统一采用三层口径来比较：第一层看原始计数，第二层看超时主导程度，第三层看除去超时之后的可用路径是否仍具备较高成功率。</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>维度</th>
+          <th>第二次</th>
+          <th>第三次</th>
+          <th>综合解读</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>总样本数</td>
+          <td>79</td>
+          <td>81</td>
+          <td>第三次多了 2 条样本，说明对比时不能只看绝对数量，还要看结构与口径。</td>
+        </tr>
+        <tr>
+          <td>通过口径</td>
+          <td>29 strict pass，7 degraded</td>
+          <td>38 pass</td>
+          <td>第二次的“有效成功”应当看 29 + 7，第三次则直接看 38 pass。</td>
+        </tr>
+        <tr>
+          <td>有效成功率</td>
+          <td>45.6%</td>
+          <td>46.91%</td>
+          <td>表面上第三次略高，但提升幅度非常有限，不能说明根问题已被解决。</td>
+        </tr>
+        <tr>
+          <td>超时数量</td>
+          <td>30</td>
+          <td>35</td>
+          <td>超时不降反升，说明“慢而不报错”的链路仍是当天主故障模式。</td>
+        </tr>
+        <tr>
+          <td>失败数量</td>
+          <td>13 fail</td>
+          <td>8 fail</td>
+          <td>第三次 fail 减少，不代表系统更稳，部分问题被重新识别成脚本误用或被 timeout 吞没。</td>
+        </tr>
+        <tr>
+          <td>总耗时</td>
+          <td>5410.651s</td>
+          <td>第三次结果集中未给总耗时，仅给平均 64.829s</td>
+          <td>第二次已证明 timeout 吞掉 97.3% 总耗时；第三次虽无同字段，但 35 条 timeout 足以说明主矛盾没有换。</td>
+        </tr>
+        <tr>
+          <td>auto 兜底</td>
+          <td>11 条里只观察到 1 条 fallback 成功</td>
+          <td>11 条里只观察到 1 条 fallback，10 条没有 final backend</td>
+          <td><code>auto</code> 的真实价值没有消失，但在长挂起场景几乎不构成兜底能力。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="two">
+      <div class="box warn">
+        <p><strong>从第二次看：</strong>最大的工程信号是 timeout 吞噬测试时间，必须优先追问“为什么卡这么久”。</p>
+      </div>
+      <div class="box good">
+        <p><strong>从第三次看：</strong>最大的认知修正是不能把所有坏结果都直接写成产品 defect，一部分失败源自脚本样本值并不贴合 provider 真实契约。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>按 backend 与类别看收敛情况</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>观察面</th>
+          <th>第二次</th>
+          <th>第三次</th>
+          <th>结论</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>efinance</code></td>
+          <td>50 条，27 pass + 7 degraded，7 fail，9 timeout</td>
+          <td>50 条，35 pass，5 fail，10 timeout</td>
+          <td>它一直是最可用的显式 backend，但并不意味着其重路径没有长挂起问题。</td>
+        </tr>
+        <tr>
+          <td><code>auto</code></td>
+          <td>11 条，1 pass，2 fail，8 timeout</td>
+          <td>11 条，1 pass，0 fail，10 timeout</td>
+          <td>从“少量快失败”转向“更多长挂起”，说明 auto 的主弱点不是聚合报错，而是没有慢调用边界。</td>
+        </tr>
+        <tr>
+          <td><code>yfinance</code></td>
+          <td>11 条，0 pass，3 fail，8 timeout</td>
+          <td>11 条，0 pass，3 fail，8 timeout</td>
+          <td>第三次几乎原样复现第二次，说明这不是偶发噪音，而是稳定存在的外部不稳定源。</td>
+        </tr>
+        <tr>
+          <td><code>quote</code> 类</td>
+          <td>2 pass，1 degraded，1 fail，9 timeout</td>
+          <td>3 pass，1 fail，9 timeout</td>
+          <td>quote 始终是最容易被 timeout 主导的一簇，特别能暴露请求层重路径和 auto 兜底失效。</td>
+        </tr>
+        <tr>
+          <td><code>stock</code> 类</td>
+          <td>8 pass，3 degraded，10 fail，8 timeout</td>
+          <td>11 pass，6 fail，12 timeout</td>
+          <td>第三次 stock 的纯失败下降，但 timeout 上升，说明不是“更稳”，而是“更慢”。</td>
+        </tr>
+        <tr>
+          <td><code>fund</code> 类</td>
+          <td>12 pass，1 degraded，0 fail，4 timeout</td>
+          <td>13 pass，0 fail，4 timeout</td>
+          <td>基金一直是当天最健康的类别，说明共享执行链并非全局不可用。</td>
+        </tr>
+        <tr>
+          <td><code>futures</code> 与 <code>market</code></td>
+          <td>仍被 silent timeout 主导</td>
+          <td>仍被 silent timeout 主导</td>
+          <td>这是当天最应补 trace 的簇，因为两轮都只知道“没返回”，不知道卡死层级。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section" id="common">
+    <h2>两轮共同根因</h2>
+    <p>无论第二次还是第三次，真正反复出现的主问题并没有变。综合两份单次分析后，可以收敛成以下四条长期主线。</p>
+    <div class="cards">
+      <article class="card">
+        <h3>1. 超时边界治理缺失</h3>
+        <p><code>auto</code> 串行候选、provider 统一重试、上游请求缺少显式 timeout、外层仅靠 <code>subprocess</code> 总闸门，这四层叠加后会把“慢但未抛错”的问题放大成整条命令挂死。</p>
+      </article>
+      <article class="card">
+        <h3>2. 重路径命令未做前置减载</h3>
+        <p><code>quote</code>、<code>market price live</code>、<code>futures</code> 一类命令背后不是轻量点查，而是全量抓取或分页并发；<code>--limit</code> 又只裁渲染，不裁请求。</p>
+      </article>
+      <article class="card">
+        <h3>3. auto 的真实兜底能力被高估</h3>
+        <p>两轮都只有 11 条 auto 用例里 1 条真实兜底成功。它在“快失败”场景还能聚合错误，但对“慢挂起”几乎没有实际保护能力。</p>
+      </article>
+      <article class="card">
+        <h3>4. 上游不稳定会被本地抽象继续放大</h3>
+        <p>yfinance 限流、东财远端断连、返回结构漂移都客观存在，但 CLI 与 provider 适配层的防守不足，会把外部波动放大成 KeyError、JSONDecodeError 或整体 timeout。</p>
+      </article>
+    </div>
+    <div class="quote">
+      <strong>综合判断：</strong>第二次强调“timeout 是主问题”，第三次强调“不要把所有坏结果直接归到产品 defect”。把两者合在一起，才是当天更完整的结论：<strong>主问题依然是 timeout 与长挂起，但根因需要拆分成产品边界治理不足、上游真实不稳定、以及脚本样本与 provider 契约不一致三层来处理。</strong>
+    </div>
+  </section>
+
+  <section class="section" id="delta">
+    <h2>第三次相对第二次的判断变化</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>主题</th>
+          <th>第二次分析结论</th>
+          <th>第三次补充或修正</th>
+          <th>综合后的最终说法</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>脚本角色</td>
+          <td>脚本覆盖矩阵是可信的，但观测口径有盲区。</td>
+          <td>脚本不仅有观测盲区，还存在样本值与 provider 契约不贴合的问题。</td>
+          <td>脚本仍然是有价值的压力暴露器，但不能直接把其全部失败都当成产品缺陷结论。</td>
+        </tr>
+        <tr>
+          <td>日期类失败</td>
+          <td>倾向归为稳定适配缺陷，并指出一例被误归网络错误。</td>
+          <td>进一步明确这属于样本误用，不应与产品层 timeout 混写在一起。</td>
+          <td>这类问题应当单独归到“回测样本修正”工作流，不应稀释 P0 的超时治理优先级。</td>
+        </tr>
+        <tr>
+          <td><code>stock price live</code></td>
+          <td>强调 schema 与 failover 截断的双缺陷。</td>
+          <td>进一步指出共享 <code>market</code> / provider <code>fs</code> 语义错位，本质是抽象边界设计问题。</td>
+          <td>它既是样本值问题，也是共享抽象设计问题；不能只修样本，不修抽象。</td>
+        </tr>
+        <tr>
+          <td>产品层缺陷口径</td>
+          <td>更多围绕源码缺陷簇与 timeout 机制分析。</td>
+          <td>更明确地区分“脚本误用、产品缺陷、上游不稳定”三层。</td>
+          <td>后续修复应按层治理，不能把三类问题打包成一个模糊的“真实 API 很不稳”。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="two">
+      <div class="box good">
+        <p><strong>第二次最有价值的贡献：</strong>把系统真正的成本中心从“失败条数”拉回到“timeout 吞噬时间与体验”。</p>
+      </div>
+      <div class="box good">
+        <p><strong>第三次最有价值的贡献：</strong>把部分原本容易被误记成产品 defect 的问题，重新拆回脚本样本与 provider 契约层面。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="priority">
+    <h2>当日综合修复优先级</h2>
+    <p>综合两份分析后，优先级应按“先解决真实用户会卡死的问题，再解决会误导回归判断的问题”的顺序推进。</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>优先级</th>
+          <th>事项</th>
+          <th>为什么现在做</th>
+          <th>综合建议</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>P0</td>
+          <td>给 <code>auto</code>、provider、HTTP 请求加明确时间预算</td>
+          <td>两轮都被 timeout 主导，且 auto 对慢调用完全无感。</td>
+          <td>拆出候选级预算、provider 级 timeout、候选开始结束 trace，避免整条命令只剩外层 kill。</td>
+        </tr>
+        <tr>
+          <td>P0</td>
+          <td>给重路径命令做前置减载</td>
+          <td><code>quote</code>、<code>market</code>、<code>futures</code> 是两轮共同卡死簇。</td>
+          <td>把 <code>--limit</code> 或同类约束前移到请求层，避免先抓全量再截展示。</td>
+        </tr>
+        <tr>
+          <td>P1</td>
+          <td>修共享抽象与 provider 契约错位</td>
+          <td><code>stock price live</code>、<code>stock profile</code> 一类问题说明共享 schema 并不总能安全映射到上游。</td>
+          <td>拆开共享 <code>market</code> 枚举和 provider 原生参数语义，必要时为特殊命令保留单独适配层。</td>
+        </tr>
+        <tr>
+          <td>P1</td>
+          <td>加上游异常吸收与标准化保护</td>
+          <td>远端断连、非 JSON、结构漂移会被继续放大成硬栈错误。</td>
+          <td>在 provider 标准化前先做空响应、非 JSON、缺字段保护，把“爆栈”改成可解释失败或 degraded。</td>
+        </tr>
+        <tr>
+          <td>P2</td>
+          <td>修正回测脚本样本值与判级逻辑</td>
+          <td>这不会直接改善真实用户体验，但会显著提高后续回归报告的解释力。</td>
+          <td>修日期格式、market/fs 样本取值、stdout warning 降级、failure 分类边界。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="box risk">
+      <p><strong>不建议的做法：</strong>直接根据第三次把一批失败移出“产品缺陷”，然后宣称系统已基本稳定。两轮都表明，真正拖垮体验的是长挂起与超时，而这部分在第三次并没有实质收敛。</p>
+    </div>
+  </section>
+
+  <section class="section" id="evidence">
+    <h2>证据链路</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>第二次分析页</h3>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第二次测试结果分析.html">docs/20260601-第二次测试结果分析.html</a></p>
+        <p>提供 timeout 主导、脚本观测盲区、catalog/enrichment 缺陷簇与修复优先级。</p>
+      </article>
+      <article class="card">
+        <h3>第三次分析页</h3>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-第三次测试结果分析.html">docs/20260601-第三次测试结果分析.html</a></p>
+        <p>补充脚本样本误用、产品缺陷、上游不稳定三层拆分，并重新定义部分失败的归因边界。</p>
+      </article>
+      <article class="card">
+        <h3>第二次结果集</h3>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-second-regression-results.json">docs/20260601-second-regression-results.json</a></p>
+        <p>关键字段：<code>strict_pass</code>、<code>degraded</code>、<code>fail</code>、<code>timeout</code>、<code>completed_duration_seconds</code>、<code>auto_stats</code>。</p>
+      </article>
+      <article class="card">
+        <h3>第三次结果集</h3>
+        <p><a href="/D:/github-project/efinance-cli/docs/20260601-third-regression-results.json">docs/20260601-third-regression-results.json</a></p>
+        <p>关键字段：<code>pass</code>、<code>fail</code>、<code>timeout</code>、<code>backend_stats</code>、<code>category_stats</code>、<code>auto_stats</code>。</p>
+      </article>
+    </div>
+    <div class="footer">
+      本综合页只做聚合分析，不改写两份单次分析的原始判断，也不覆盖原始测试结论页。它的职责是把“第二次看到的主问题”和“第三次补充的归因修正”合并成一套更稳的当天结论，供后续修复排期直接引用。
+    </div>
+  </section>
+</main>
+</body>
+</html>
