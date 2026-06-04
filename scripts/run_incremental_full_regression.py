@@ -393,7 +393,7 @@ def try_parse_json(stdout: str) -> Any | None:
         return None
 
 def extract_backend_meta(parsed: Any) -> dict[str, Any]:
-    """? raw/json ??????????? limit ???"""
+    """从 raw/json 结果中提取 backend 元数据与 limit 证据。"""
 
     return extract_backend_meta_from_payload(parsed)
 
@@ -410,7 +410,7 @@ def classify_failure(
     backend_meta: dict[str, Any],
     artifact_reports: list[dict[str, Any]],
 ) -> tuple[str | None, str | None]:
-    """??????????????"""
+    """按统一规则推断当前回归结果的失败分类与摘要。"""
 
     return classify_regression_failure(
         command_path=command_path,

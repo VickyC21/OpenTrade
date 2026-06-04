@@ -101,7 +101,7 @@ def validate_request_data(schema: RequestSchema, raw_data: dict[str, Any]) -> di
 
 
 def coerce_schema_value(field: RequestField, value: Any) -> Any:
-    """? Click ?????? schema ?????"""
+    """把 Click 原始参数值转换为 schema 约束下的 Python 值。"""
 
     expected_type = unwrap_annotation(field.annotation)
     if field.multiple:

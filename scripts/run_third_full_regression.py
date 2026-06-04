@@ -369,7 +369,7 @@ def validate_cases(cases: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def parse_backend_meta(stdout: str) -> dict[str, Any]:
-    """? stdout ????????? limit ???"""
+    """从 stdout 中提取 backend 元数据与 limit 证据。"""
 
     return extract_backend_meta_from_stdout(stdout)
 
@@ -383,7 +383,7 @@ def infer_failure(
     meta: dict[str, Any],
     artifacts: list[dict[str, Any]],
 ) -> tuple[str | None, str | None]:
-    """????????????????????"""
+    """结合执行上下文推断失败分类与失败原因摘要。"""
 
     return classify_regression_failure(
         command_path=case["path"],
@@ -398,7 +398,7 @@ def infer_failure(
 
 
 def detect_fallback(case: dict[str, Any], meta: dict[str, Any]) -> bool:
-    """?? auto ????????????? backend?"""
+    """判断 auto 请求是否真实切换到了首候选之外的 backend。"""
 
     return detect_auto_fallback(case["backend"], meta)
 
