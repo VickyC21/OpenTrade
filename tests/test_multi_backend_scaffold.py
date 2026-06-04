@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from opentrade.backends.base import BackendProvider, BackendRateLimitError, CapabilityHandler
+from opentrade.backends.base import BackendProvider, BackendRateLimitError, CapabilityHandler, ProviderExecutionError
 from opentrade.backends.resolver import resolve_backend_selection
 from opentrade.backends.factory import get_backend_provider, list_backend_providers
 from opentrade.command_catalog import (
@@ -133,7 +133,7 @@ class MultiBackendScaffoldTest(unittest.TestCase):
 
         class FailingHandler(CapabilityHandler):
             def execute(self, request_data: dict[str, object]) -> StandardResult:
-                raise RuntimeError("temporary provider failure")
+                raise ProviderExecutionError(BackendName.AKSHARE, "stock.price.history", "execute", "temporary provider failure")
 
         class SuccessHandler(CapabilityHandler):
             def execute(self, request_data: dict[str, object]) -> StandardResult:
@@ -163,7 +163,7 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                 self.message = message
 
             def execute(self, request_data: dict[str, object]) -> StandardResult:
-                raise RuntimeError(self.message)
+                raise ProviderExecutionError(BackendName.AKSHARE, "stock.price.history", "execute", self.message)
 
         providers = {
             BackendName.AKSHARE: BackendProvider(BackendName.AKSHARE, {"stock.price.history": FailingHandler("akshare failed")}),
@@ -710,9 +710,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
     def test_yfinance_rate_limit_error_is_exposed_readably(self) -> None:
         definition = get_shared_command_definition("stock.profile")
         facade = CommandFacade()
-        with patch("opentrade.backends.providers._build_yfinance_ticker", return_value=object()):
+        with patch("opentrade.backends.provider_yfinance._build_yfinance_ticker", return_value=object()):
             with patch(
-                "opentrade.backends.providers._extract_yfinance_quote_info",
+                "opentrade.backends.provider_yfinance._extract_yfinance_quote_info",
                 side_effect=BackendRateLimitError("Yahoo rate limited the request. Please retry later."),
             ):
                 with patch("vortezwohl.func.retry.sleep", return_value=None):

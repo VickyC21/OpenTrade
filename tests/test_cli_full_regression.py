@@ -6,7 +6,7 @@ from unittest.mock import patch
 import click
 from click.testing import CliRunner
 
-from opentrade.backends.base import BackendProvider, CapabilityHandler
+from opentrade.backends.base import BackendProvider, CapabilityHandler, ProviderExecutionError
 from opentrade.backends.factory import list_provider_extension_commands
 from opentrade.command_catalog import get_shared_command_definition
 from opentrade.command_catalog import SHARED_COMMANDS
@@ -247,7 +247,7 @@ class CliFullRegressionTest(unittest.TestCase):
                 self.message = message
 
             def execute(self, request_data: dict[str, object]) -> StandardResult:
-                raise RuntimeError(self.message)
+                raise ProviderExecutionError(BackendName.AKSHARE, "stock.price.history", "execute", self.message)
 
         providers = {
             BackendName.AKSHARE: BackendProvider(BackendName.AKSHARE, {"stock.price.history": RuntimeFailHandler("akshare failed")}),

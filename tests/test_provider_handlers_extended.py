@@ -47,7 +47,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             ]
         )
 
-        with patch("opentrade.backends.providers._load_akshare_module") as mock_load:
+        with patch("opentrade.backends.provider_akshare._load_akshare_module") as mock_load:
             mock_akshare = MagicMock()
             mock_akshare.stock_zh_a_spot_em.return_value = mock_frame
             mock_load.return_value = mock_akshare
@@ -80,7 +80,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             ]
         )
 
-        with patch("opentrade.backends.providers._load_akshare_module") as mock_load:
+        with patch("opentrade.backends.provider_akshare._load_akshare_module") as mock_load:
             mock_akshare = MagicMock()
             mock_akshare.fund_open_fund_info_em.return_value = mock_frame
             mock_load.return_value = mock_akshare
@@ -116,7 +116,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             ]
         )
 
-        with patch("opentrade.backends.providers._load_akshare_module") as mock_load:
+        with patch("opentrade.backends.provider_akshare._load_akshare_module") as mock_load:
             mock_akshare = MagicMock()
             mock_akshare.stock_individual_info_em.return_value = mock_result
             mock_load.return_value = mock_akshare
@@ -143,7 +143,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             ]
         )
 
-        with patch("opentrade.backends.providers._load_akshare_module") as mock_load:
+        with patch("opentrade.backends.provider_akshare._load_akshare_module") as mock_load:
             mock_akshare = MagicMock()
             mock_akshare.stock_zh_a_hist.return_value = mock_frame
             mock_load.return_value = mock_akshare
@@ -179,9 +179,9 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
     def test_yfinance_realtime_handler_normalizes_result(self) -> None:
         handler = YfinanceRealtimeHandler("stock.price.latest")
 
-        with patch("opentrade.backends.providers._build_yfinance_ticker") as mock_ticker, \
-             patch("opentrade.backends.providers._resolve_yfinance_realtime_symbols", return_value=["AAPL"]), \
-             patch("opentrade.backends.providers._build_yfinance_realtime_row") as mock_row:
+        with patch("opentrade.backends.provider_yfinance._build_yfinance_ticker") as mock_ticker, \
+             patch("opentrade.backends.provider_yfinance._resolve_yfinance_realtime_symbols", return_value=["AAPL"]), \
+             patch("opentrade.backends.provider_yfinance._build_yfinance_realtime_row") as mock_row:
             mock_row.return_value = {"symbol": "AAPL", "name": "Apple Inc.", "close": 195.5}
 
             result = handler.execute({"symbols": ["AAPL"]})
@@ -201,10 +201,10 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
         handler = YfinanceRealtimeHandler("stock.price.latest")
 
         with patch(
-            "opentrade.backends.providers._resolve_yfinance_realtime_symbols",
+            "opentrade.backends.provider_yfinance._resolve_yfinance_realtime_symbols",
             return_value=["AAPL"],
         ), patch(
-            "opentrade.backends.providers._build_yfinance_realtime_row",
+            "opentrade.backends.provider_yfinance._build_yfinance_realtime_row",
             side_effect=RuntimeError("Too Many Requests"),
         ):
             with self.assertRaises(ProviderExecutionError) as ctx:
@@ -359,7 +359,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             "_build_catalog_loaders",
             return_value=[("A_stock", MagicMock(side_effect=OSError("catalog down")))],
         ):
-            with patch("opentrade.backends.providers._load_akshare_module", return_value=MagicMock()):
+            with patch("opentrade.backends.provider_akshare._load_akshare_module", return_value=MagicMock()):
                 with self.assertRaises(OSError):
                     handler.execute({"keyword": "AAPL"})
 
@@ -376,7 +376,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
                 ("A_stock", MagicMock(return_value=success_frame)),
             ],
         ):
-            with patch("opentrade.backends.providers._load_akshare_module", return_value=MagicMock()):
+            with patch("opentrade.backends.provider_akshare._load_akshare_module", return_value=MagicMock()):
                 result = handler.execute({"keyword": "AAPL", "market_type": "A_stock"})
 
         self.assertEqual(result.contract_name, "search-results")
@@ -430,7 +430,7 @@ class ProviderHandlersExtendedTest(unittest.TestCase):
             ]
         )
 
-        with patch("opentrade.backends.providers._build_limited_efinance_live_frame", return_value=limited_frame) as mock_limit:
+        with patch("opentrade.backends.provider_efinance._build_limited_efinance_live_frame", return_value=limited_frame) as mock_limit:
             result = handler.execute({"market": "A_stock", EXECUTION_LIMIT_REQUEST_KEY: 1})
 
         mock_limit.assert_called_once_with("沪深A股", 1)

@@ -236,3 +236,27 @@ def _validate_market_name(value: Any) -> None:
         raise click.ClickException(
             "Unknown market enum: " + ", ".join(invalid)
         )
+
+
+def _validate_identifier_shape(field: RequestField, value: Any) -> None:
+    """校验共享标识符形状，避免把 provider-native ID 混入 shared 契约。"""
+
+    values = value if isinstance(value, list) else [value]
+    invalid: list[str] = []
+    for item in values:
+        text = str(item or "").strip()
+        if not text:
+            continue
+        if field.name in {"symbol", "symbols"} and _looks_like_eastmoney_quote_id(text):
+            invalid.append(text)
+    if invalid:
+        raise click.ClickException(
+            "Shared symbol contract does not accept Eastmoney quote_id: " + ", ".join(invalid)
+        )
+
+
+def _looks_like_eastmoney_quote_id(text: str) -> bool:
+    if "." not in text:
+        return False
+    left, right = text.split(".", 1)
+    return left.isdigit() and right.isdigit()

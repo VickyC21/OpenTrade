@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>20260604-2002 任务结论</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --paper: #fffaf0;
+      --ink: #1f2933;
+      --muted: #5b6b79;
+      --line: #d5c7ad;
+      --accent: #8f3b2f;
+      --accent-soft: #ead6c8;
+      --ok: #2f6b4f;
+      --warn: #8a5a17;
+      --shadow: 0 22px 60px rgba(61, 42, 24, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", "Noto Serif SC", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(143, 59, 47, 0.10), transparent 28%),
+        radial-gradient(circle at top right, rgba(47, 107, 79, 0.08), transparent 24%),
+        linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
+      line-height: 1.75;
+    }
+
+    .hero {
+      padding: 72px 24px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 24px 24px auto auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(143, 59, 47, 0.16), rgba(143, 59, 47, 0));
+      pointer-events: none;
+    }
+
+    .wrap {
+      width: min(1080px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.06;
+      max-width: 11ch;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin-top: 20px;
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      padding: 0 24px 72px;
+    }
+
+    .card {
+      background: rgba(255, 250, 240, 0.92);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(6px);
+    }
+
+    .card h2 {
+      margin: 0 0 18px;
+      font-size: 24px;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    .stat-list,
+    .plain-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .plain-list li,
+    .stat-list li {
+      margin: 10px 0;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 16px;
+    }
+
+    .timeline-item {
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent);
+      background: rgba(234, 214, 200, 0.28);
+      border-radius: 12px;
+    }
+
+    .timeline-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .status-ok {
+      color: var(--ok);
+      font-weight: 700;
+    }
+
+    .status-warn {
+      color: var(--warn);
+      font-weight: 700;
+    }
+
+    code {
+      font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 0.95em;
+      background: rgba(31, 41, 51, 0.06);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .footer {
+      padding: 0 24px 56px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .span-7, .span-5, .span-6 { grid-column: span 12; }
+      .card { padding: 22px; }
+      .hero { padding-top: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">OpenSpec Apply Change</div>
+      <h1>refactor-provider-adapters-and-contracts 已完成</h1>
+      <p class="lead">
+        本次任务完成了 provider 模块拆分、shared contract 收紧、请求适配边界收敛、A 股到 Yahoo ticker 的显式翻译、
+        以及基于真实能力边界的 auto routing 调整。所有 <code>tasks.md</code> 任务项已完成并勾选。
+      </p>
+      <div class="chips">
+        <span class="chip">21 / 21 任务完成</span>
+        <span class="chip">UTF-8 无 BOM 输出</span>
+        <span class="chip">仅使用项目 .venv</span>
+        <span class="chip">provider modularization</span>
+        <span class="chip">contract tightening</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="grid wrap">
+    <section class="card span-7">
+      <h2>总任务结论</h2>
+      <ul class="plain-list">
+        <li><span class="status-ok">已完成</span> `opentrade/backends/providers.py` 巨型实现拆分为 `provider_efinance.py`、`provider_akshare.py`、`provider_yfinance.py` 与 `providers_common.py`。</li>
+        <li><span class="status-ok">已完成</span> `factory.py` 直接转向新模块构建 provider，上层仍通过稳定 factory 接口取 provider。</li>
+        <li><span class="status-ok">已完成</span> shared `quote.*` 命令从模糊的 “东财 quote_id 或 Yahoo ticker 混用” 收紧为“共享行情标识”语义，并在 shared 边界显式拒绝东财原生 `1.000001` 这类 provider-native ID。</li>
+        <li><span class="status-ok">已完成</span> yfinance adapter 为 A 股 6 位代码增加了显式 `.SS/.SZ` 翻译，不再依赖调用方预先知道 Yahoo ticker 形式。</li>
+        <li><span class="status-ok">已完成</span> efinance adapter 把 shared `symbol/symbols` 显式解析为东财 `quote_id`，避免上层把 shared request 直接当 provider-native kwargs 透传。</li>
+        <li><span class="status-ok">已完成</span> `auto_planner.py` 增加按真实能力边界过滤 backend 候选的逻辑，避免旧的模糊契约继续污染 auto routing。</li>
+        <li><span class="status-ok">已完成</span> `fund.profile` 从伪多值 shared schema 收紧为单值真实契约，并保留 CLI 兼容 alias。</li>
+      </ul>
+    </section>
+
+    <section class="card span-5">
+      <h2>关键验证</h2>
+      <ul class="stat-list">
+        <li><code>tests/test_provider_handlers_extended.py</code> <span class="status-ok">18 passed</span></li>
+        <li><code>tests/test_schema_and_resolver.py</code> <span class="status-ok">17 passed</span></li>
+        <li><code>tests/test_multi_backend_scaffold.py</code> <span class="status-ok">34 passed</span></li>
+        <li><code>tests/test_cli_full_regression.py</code> <span class="status-ok">15 passed</span></li>
+        <li><code>tests/test_facade_unit.py</code> <span class="status-ok">14 passed</span></li>
+        <li><code>tests/test_observation_smoke.py</code> <span class="status-ok">14 passed</span></li>
+        <li><code>tests/test_executor_regression.py</code> <span class="status-ok">6 passed</span></li>
+        <li>组合切片 <code>118 passed</code>，补充回归 <code>39 passed</code>。</li>
+      </ul>
+    </section>
+
+    <section class="card span-12">
+      <h2>实施过程中的主要问题与处理</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <strong>1. 结构拆分后旧测试 patch 目标失效</strong>
+          原测试仍 patch <code>opentrade.backends.providers.*</code>，而真实执行路径已经转到拆分后的 backend 模块，导致测试触发真实网络访问。
+          处理方式是把测试 patch 目标切换到 <code>provider_akshare</code>、<code>provider_efinance</code>、<code>provider_yfinance</code> 的真实实现点。
+        </div>
+        <div class="timeline-item">
+          <strong>2. `provider_akshare.py` 存在机械拆分遗留缺失导入</strong>
+          `_build_akshare_retry_policy()` 使用了 <code>ProviderContractError</code>，但模块初始未导入。
+          该问题已补齐，并通过相关结构测试验证。
+        </div>
+        <div class="timeline-item">
+          <strong>3. shared `quote.*` 语义原本不真实</strong>
+          东财 <code>quote_id</code> 与 Yahoo ticker 原本被混放在同一 shared 字段中，既不统一也不可静态验证。
+          本次改为共享行情标识语义，并把 provider-native ID 留在 adapter 内部翻译或明确拒绝。
+        </div>
+        <div class="timeline-item">
+          <strong>4. PowerShell 编辑时需特别注意中文和换行</strong>
+          过程中曾出现一次把字面量 <code>`r`n</code> 误写进 Python 文件的情况，立即回查并修复。
+          最终所有写回均使用 UTF-8 无 BOM，且已通过 Python 编译与测试验证。
+        </div>
+      </div>
+    </section>
+
+    <section class="card span-6">
+      <h2>本次改动覆盖范围</h2>
+      <ul class="plain-list">
+        <li><code>opentrade/backends/provider_efinance.py</code></li>
+        <li><code>opentrade/backends/provider_akshare.py</code></li>
+        <li><code>opentrade/backends/provider_yfinance.py</code></li>
+        <li><code>opentrade/backends/providers_common.py</code></li>
+        <li><code>opentrade/backends/providers.py</code></li>
+        <li><code>opentrade/backends/factory.py</code></li>
+        <li><code>opentrade/backends/auto_planner.py</code></li>
+        <li><code>opentrade/command_catalog.py</code></li>
+        <li><code>opentrade/request_schema.py</code></li>
+        <li>若干 provider / schema / regression 测试文件</li>
+      </ul>
+    </section>
+
+    <section class="card span-6">
+      <h2>剩余风险与说明</h2>
+      <ul class="plain-list">
+        <li><span class="status-warn">需知晓</span> 本次重点是结构边界与 shared contract 真相收敛，不包含“所有上游真实 API 波动”的全面治理。</li>
+        <li><span class="status-warn">需知晓</span> `quote.*` 现在对 shared 输入更严格，旧的东财原生 `quote_id` 直传路径会在 shared 边界更早失败，这是预期的契约修正，不是回归。</li>
+        <li><span class="status-warn">需知晓</span> `providers.py` 仍保留兼容导出层，主要用于旧导入路径和旧测试习惯；工厂本身已不再依赖它。</li>
+      </ul>
+    </section>
+  </main>
+
+  <div class="footer wrap">
+    生成时间：2026-06-04 任务收口阶段。文档内容基于本地代码、OpenSpec 任务项与已执行测试结果整理。
+  </div>
+</body>
+</html>

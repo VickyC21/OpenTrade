@@ -51,7 +51,7 @@ def _extract_market(request_data: Mapping[str, object]) -> str | None:
 
 
 def _extract_target_text(command_key: str, request_data: Mapping[str, object]) -> str:
-    if command_key in {"stock.price.history", "stock.price.latest", "fund.profile"}:
+    if command_key in {"stock.price.history", "stock.price.latest"}:
         values = request_data.get("symbols") or []
         return str(values[0]) if values else ""
     if command_key == "stock.profile":
@@ -100,3 +100,32 @@ def _looks_like_a_share_symbol(text: str) -> bool:
 
 def _looks_like_cn_quote_id(text: str) -> bool:
     return "." in text and text.split(".", 1)[0].isdigit()
+
+
+def _supports_request_truthfully(
+    command_key: str,
+    backend_name: BackendName,
+    request_data: Mapping[str, object],
+) -> bool:
+    """按当前 normalized request 过滤不真实的 backend 候选。"""
+
+    market = _extract_market(request_data)
+    if command_key == "stock.price.live":
+        return backend_name != BackendName.YFINANCE
+    if command_key == "fund.profile":
+        return False if backend_name == BackendName.AKSHARE else True
+    if command_key in {"quote.price.history", "quote.price.latest", "quote.profile"}:
+        target = _extract_target_text(command_key, request_data).strip().upper()
+        if _looks_like_cn_quote_id(target):
+            return False
+        if backend_name == BackendName.EFINANCE and market == "A_stock":
+            return True
+        if backend_name == BackendName.YFINANCE:
+            return True
+    if command_key in {"stock.price.history", "stock.price.latest", "stock.price.snapshot", "stock.profile"}:
+        target = _extract_target_text(command_key, request_data).strip().upper()
+        if backend_name == BackendName.AKSHARE:
+            return market in (None, "A_stock") and _looks_like_a_share_symbol(target)
+        if backend_name == BackendName.YFINANCE and market == "A_stock":
+            return _looks_like_a_share_symbol(target)
+    return True
