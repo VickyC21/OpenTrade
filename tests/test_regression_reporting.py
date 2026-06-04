@@ -10,13 +10,13 @@ from __future__ import annotations
 
 import unittest
 
-from scripts.regression_reporting import (
+from tests.regression_reporting import (
     classify_regression_failure,
     detect_auto_fallback,
     normalize_backend_meta,
 )
-from scripts.run_incremental_full_regression import build_summary as build_incremental_summary
-from scripts.run_third_full_regression import summarize as build_third_summary
+from tests.run_incremental_full_regression import build_summary as build_incremental_summary
+from tests.run_third_full_regression import summarize as build_third_summary
 
 
 class RegressionReportingTest(unittest.TestCase):

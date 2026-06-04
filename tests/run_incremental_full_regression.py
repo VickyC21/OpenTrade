@@ -34,7 +34,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from opentrade.backends.factory import list_provider_extension_commands
 from opentrade.command_catalog import SHARED_COMMANDS, get_shared_command_definition
 from opentrade.commands import create_root_command, create_search_command
-from scripts.regression_reporting import (
+from tests.regression_reporting import (
     classify_regression_failure,
     detect_auto_fallback,
     extract_backend_meta_from_payload,
