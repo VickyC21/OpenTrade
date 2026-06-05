@@ -80,9 +80,9 @@ opentrade --help</code></pre>
       当你只知道代码、关键字或公司名时，最稳妥的入口就是先搜索。
     </td>
     <td width="33%" valign="top">
-      <strong>2. 解析 <code>quote_id</code></strong>
-      <pre lang="bash"><code>opentrade resolve quote-id --symbol AAPL --market us_stock --format json</code></pre>
-      常见美股会被解析成类似 <code>105.AAPL</code> 这样的统一行情标识。
+      <strong>2. 直接查询共享行情</strong>
+      <pre lang="bash"><code>opentrade quote price latest --symbols AAPL --format json</code></pre>
+      共享 <code>quote</code> 命令直接接收跨后端共用的 symbol / ticker，例如 <code>AAPL</code>。
     </td>
     <td width="33%" valign="top">
       <strong>3. 查询行情</strong>
@@ -101,7 +101,7 @@ opentrade --help</code></pre>
       <strong>标的发现</strong>
       <ul>
         <li>按关键字搜索证券。</li>
-        <li>把 symbol 解析成 <code>quote_id</code>。</li>
+        <li>当 provider 专属流程需要时，可把 symbol 解析成东方财富 <code>quote_id</code>。</li>
         <li>从发现阶段无缝进入行情与历史查询，不需要切换工具。</li>
       </ul>
     </td>
@@ -154,12 +154,12 @@ opentrade --help</code></pre>
     <tr>
       <td><code>resolve</code></td>
       <td>解析行情标识。</td>
-      <td>把 symbol 转成可复用的 <code>quote_id</code>。</td>
+      <td>把 symbol 转成东方财富 <code>quote_id</code>，供 provider 专属流程使用。</td>
     </tr>
     <tr>
       <td><code>quote</code></td>
       <td>跨资产统一行情入口。</td>
-      <td>适合已经拿到 <code>quote_id</code> 的场景。</td>
+      <td>直接使用共享 symbol / ticker 做跨后端行情、历史和资料查询。</td>
     </tr>
     <tr>
       <td><code>market</code></td>
@@ -335,7 +335,7 @@ opentrade --help</code></pre>
 <summary><strong>最新行情 observation</strong></summary>
 
 <p><strong>命令</strong></p>
-<pre lang="bash"><code>opentrade quote price latest --quote-ids 105.AAPL --format table --indicator-level full --trace-window 4</code></pre>
+<pre lang="bash"><code>opentrade quote price latest --symbols AAPL --format table --indicator-level full --trace-window 4</code></pre>
 
 <p><strong>典型输出</strong></p>
 
@@ -552,12 +552,11 @@ opentrade --help</code></pre>
     <td width="50%" valign="top">
       <strong>搜索并查看</strong>
       <pre lang="bash"><code>opentrade search --query NVDA --market US_stock
-opentrade resolve quote-id --symbol NVDA --market us_stock
-opentrade quote price latest --quote-ids 105.NVDA</code></pre>
+opentrade quote price latest --symbols NVDA</code></pre>
     </td>
     <td width="50%" valign="top">
       <strong>循环观察单个行情</strong>
-      <pre lang="bash"><code>opentrade watch --interval 5 --count 3 quote price latest --quote-ids 105.AAPL --format json</code></pre>
+      <pre lang="bash"><code>opentrade watch --interval 5 --count 3 quote price latest --symbols AAPL --format json</code></pre>
     </td>
   </tr>
   <tr>
@@ -583,6 +582,7 @@ opentrade quote price latest --quote-ids 105.NVDA</code></pre>
         <li>CLI 的可用性依赖上游行情数据源。</li>
         <li>实时行情稳定性受网络状态和源站行为影响。</li>
         <li>不同命令支持的指标增强深度并不完全相同。</li>
+        <li>共享 <code>quote</code> 命令默认使用 symbol / ticker 语义；<code>resolve quote-id</code> 主要服务于东方财富专属流程。</li>
       </ul>
     </td>
     <td width="50%" valign="top">

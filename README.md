@@ -80,9 +80,9 @@ It reorganizes upstream capability into a public command tree that is easier to 
       Start here when you only know a ticker, keyword, or company name.
     </td>
     <td width="33%" valign="top">
-      <strong>2. Resolve <code>quote_id</code></strong>
-      <pre lang="bash"><code>opentrade resolve quote-id --symbol AAPL --market us_stock --format json</code></pre>
-      Common US instruments resolve into identifiers such as <code>105.AAPL</code>.
+      <strong>2. Query shared quotes directly</strong>
+      <pre lang="bash"><code>opentrade quote price latest --symbols AAPL --format json</code></pre>
+      Shared <code>quote</code> commands take cross-backend symbols or tickers such as <code>AAPL</code> directly.
     </td>
     <td width="33%" valign="top">
       <strong>3. Query market data</strong>
@@ -101,7 +101,7 @@ It reorganizes upstream capability into a public command tree that is easier to 
       <strong>Instrument discovery</strong>
       <ul>
         <li>Search instruments by keyword.</li>
-        <li>Resolve symbols into <code>quote_id</code>.</li>
+        <li>Resolve symbols into 东方财富 <code>quote_id</code> when a provider-specific workflow needs it.</li>
         <li>Move from discovery into quote and history queries without switching tools.</li>
       </ul>
     </td>
@@ -154,12 +154,12 @@ It reorganizes upstream capability into a public command tree that is easier to 
     <tr>
       <td><code>resolve</code></td>
       <td>Identifier resolution.</td>
-      <td>Turn a symbol into a reusable <code>quote_id</code>.</td>
+      <td>Turn a symbol into an 东方财富 <code>quote_id</code> for provider-specific workflows.</td>
     </tr>
     <tr>
       <td><code>quote</code></td>
       <td>Cross-asset quote access.</td>
-      <td>Use when the <code>quote_id</code> is already known.</td>
+      <td>Use shared symbols or tickers directly for cross-backend quote, history, and profile queries.</td>
     </tr>
     <tr>
       <td><code>market</code></td>
@@ -335,7 +335,7 @@ The examples below only show the public-facing `observation` format.
 <summary><strong>Latest quote observation</strong></summary>
 
 <p><strong>Command</strong></p>
-<pre lang="bash"><code>opentrade quote price latest --quote-ids 105.AAPL --format table --indicator-level full --trace-window 4</code></pre>
+<pre lang="bash"><code>opentrade quote price latest --symbols AAPL --format table --indicator-level full --trace-window 4</code></pre>
 
 <p><strong>Typical output</strong></p>
 
@@ -552,12 +552,11 @@ The examples below only show the public-facing `observation` format.
     <td width="50%" valign="top">
       <strong>Search and inspect</strong>
       <pre lang="bash"><code>opentrade search --query NVDA --market US_stock
-opentrade resolve quote-id --symbol NVDA --market us_stock
-opentrade quote price latest --quote-ids 105.NVDA</code></pre>
+opentrade quote price latest --symbols NVDA</code></pre>
     </td>
     <td width="50%" valign="top">
       <strong>Watch a quote</strong>
-      <pre lang="bash"><code>opentrade watch --interval 5 --count 3 quote price latest --quote-ids 105.AAPL --format json</code></pre>
+      <pre lang="bash"><code>opentrade watch --interval 5 --count 3 quote price latest --symbols AAPL --format json</code></pre>
     </td>
   </tr>
   <tr>
@@ -580,11 +579,12 @@ opentrade quote price latest --quote-ids 105.NVDA</code></pre>
 - Supported shared coverage includes search, stock and quote history, quote latest, conditional stock latest/snapshot, stock and quote profile, fund NAV history, and fund profile.
 - Yahoo-only capability currently starts with `quote news`, exposed as a provider-extension command instead of pretending to be backend-agnostic.
 - Symbol semantics follow Yahoo tickers first. Typical inputs are `AAPL`, `MSFT`, `0700.HK`, or `9988.HK`; not every domestic-market symbol style can be inferred safely.
+- Shared `quote` commands use symbol/ticker inputs; the `--quote-ids` alias remains for compatibility but should not be read as an 东方财富 `quote_id` requirement.
 - Live smoke verification is intentionally optional because Yahoo may return explicit rate-limit failures even for valid requests.
 
 ```bash
 opentrade search --query AAPL --backend yfinance --format json
-opentrade quote price latest --quote-ids AAPL --backend yfinance --format json
+opentrade quote price latest --symbols AAPL --backend yfinance --format json
 opentrade quote news --quote-id AAPL --result-count 5 --format json
 ```
 
