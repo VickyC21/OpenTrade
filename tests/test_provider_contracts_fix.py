@@ -15,6 +15,7 @@ from opentrade.backends.akshare_provider import (
 from opentrade.backends.base import BackendName, ProviderContractError
 from opentrade.backends.efinance_provider import (
     _adapt_efinance_request,
+    _looks_like_efinance_quote_id,
     _resolve_efinance_quote_id,
     _resolve_efinance_quote_ids,
 )
@@ -75,19 +76,41 @@ class ProviderContractsFixTest(unittest.TestCase):
         self.assertEqual(adapted["beg"], "20250501")
         self.assertEqual(adapted["end"], "20250530")
 
-    def test_efinance_quote_price_history_accepts_single_code_alias(self) -> None:
+    def test_efinance_quote_id_detection_only_accepts_known_market_prefixes(
+        self,
+    ) -> None:
+        self.assertTrue(_looks_like_efinance_quote_id("105.AAPL"))
+        self.assertFalse(_looks_like_efinance_quote_id("700.HK"))
+        self.assertFalse(_looks_like_efinance_quote_id("000001.SZ"))
+        self.assertFalse(_looks_like_efinance_quote_id("600519.SS"))
+
+    def test_efinance_quote_price_history_does_not_enable_quote_id_mode_for_yahoo_tickers(
+        self,
+    ) -> None:
         adapted = _adapt_efinance_request(
             "quote.price.history",
             {
-                "code": "AAPL",
+                "codes": ["700.HK", "000001.SZ"],
                 "start_date": "20250501",
                 "end_date": "20250530",
             },
         )
 
-        self.assertEqual(adapted["codes"], "AAPL")
+        self.assertEqual(adapted["codes"], ["700.HK", "000001.SZ"])
         self.assertNotIn("quote_id_mode", adapted)
 
+    def test_efinance_quote_price_history_rejects_single_code_alias(self) -> None:
+        with self.assertRaises(ValueError) as ctx:
+            _adapt_efinance_request(
+                "quote.price.history",
+                {
+                    "code": "AAPL",
+                    "start_date": "20250501",
+                    "end_date": "20250530",
+                },
+            )
+
+        self.assertIn("缺少标的字段", str(ctx.exception))
     def test_efinance_quote_id_helpers_only_consume_shared_symbols(self) -> None:
         with patch(
             "opentrade.backends.efinance_provider.efinance.utils.get_quote_id",
