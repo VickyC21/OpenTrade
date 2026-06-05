@@ -35,7 +35,8 @@ def plan_auto_backend_candidates(
     supported = [
         backend_name
         for backend_name in DEFAULT_AUTO_CANDIDATE_ORDER
-        if definition.supports_backend(backend_name) and backend_name in registry
+        if definition.supports_backend(backend_name)
+        and backend_name in registry
     ]
     if len(supported) <= 1:
         return tuple(supported)
@@ -200,7 +201,11 @@ def _supports_request_truthfully(
             if backend_name == BackendName.AKSHARE:
                 return False
 
-    if command_key in {"quote.price.history", "quote.price.latest", "quote.profile"}:
+    if command_key in {
+        "quote.price.history",
+        "quote.price.latest",
+        "quote.profile",
+    }:
         if _looks_like_cn_quote_id(target):
             return False
         if backend_name == BackendName.EFINANCE:
@@ -217,11 +222,16 @@ def _supports_request_truthfully(
         "stock.profile",
     }:
         if backend_name == BackendName.AKSHARE:
-            return market in (None, "A_stock") and _looks_like_a_share_symbol(target)
+            return market in (None, "A_stock") and _looks_like_a_share_symbol(
+                target
+            )
         if backend_name == BackendName.YFINANCE and market == "A_stock":
             return _looks_like_a_share_symbol(target)
 
-    if command_key == "fund.nav.history" and backend_name == BackendName.YFINANCE:
+    if (
+        command_key == "fund.nav.history"
+        and backend_name == BackendName.YFINANCE
+    ):
         return _is_single_target_request(command_key, request_data)
 
     return True

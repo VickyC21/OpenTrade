@@ -186,24 +186,22 @@ class YfinanceProfileHandler(CapabilityHandler):
         fast_info = _extract_yfinance_fast_info(ticker)
 
         payload = {
-            "code":
-            symbol,
+            "code": symbol,
             "name": (
-                quote_info.get("shortName") or quote_info.get("longName")
-                or metadata.get("shortName") or symbol
+                quote_info.get("shortName")
+                or quote_info.get("longName")
+                or metadata.get("shortName")
+                or symbol
             ),
-            "quote_id":
-            symbol,
-            "market":
-            _resolve_yfinance_profile_market(symbol, quote_info, metadata),
-            "pe":
-            quote_info.get("trailingPE") or quote_info.get("forwardPE"),
-            "pb":
-            quote_info.get("priceToBook"),
-            "industry":
-            quote_info.get("industry") or quote_info.get("sector"),
-            "total_market_value":
-            quote_info.get("marketCap") or fast_info.get("marketCap"),
+            "quote_id": symbol,
+            "market": _resolve_yfinance_profile_market(
+                symbol, quote_info, metadata
+            ),
+            "pe": quote_info.get("trailingPE") or quote_info.get("forwardPE"),
+            "pb": quote_info.get("priceToBook"),
+            "industry": quote_info.get("industry") or quote_info.get("sector"),
+            "total_market_value": quote_info.get("marketCap")
+            or fast_info.get("marketCap"),
         }
         normalized = _normalize_profile_mapping(payload, symbol)
         return build_standard_result(
@@ -233,16 +231,15 @@ class YfinanceFundProfileHandler(CapabilityHandler):
         funds_data = _extract_yfinance_funds_data(ticker)
 
         payload = {
-            "code":
-            symbol,
+            "code": symbol,
             "name": (
-                quote_info.get("shortName") or quote_info.get("longName")
-                or funds_data.get("fund_overview", {}).get("family") or symbol
+                quote_info.get("shortName")
+                or quote_info.get("longName")
+                or funds_data.get("fund_overview", {}).get("family")
+                or symbol
             ),
-            "quote_id":
-            symbol,
-            "market":
-            "fund",
+            "quote_id": symbol,
+            "market": "fund",
         }
         normalized = _normalize_profile_mapping(payload, symbol)
         return build_standard_result(
@@ -279,7 +276,8 @@ class YfinanceQuoteNewsHandler(CapabilityHandler):
         for item in news_items:
             normalized = normalize_contract_mapping(
                 {
-                    "name": item.get("title") or item.get("publisher")
+                    "name": item.get("title")
+                    or item.get("publisher")
                     or symbol,
                     "symbol": symbol,
                     "code": item.get("publisher"),
@@ -345,8 +343,8 @@ def _build_yfinance_retry_policy() -> ProviderRetryPolicy:
     """返回 yfinance 的 provider 级统一重试策略。"""
     return ProviderRetryPolicy(
         retryable_exceptions=NETWORK_RELATED_EXCEPTIONS,
-        rate_limit_exceptions=(BackendRateLimitError, ),
-        passthrough_exceptions=(ProviderContractError, ),
+        rate_limit_exceptions=(BackendRateLimitError,),
+        passthrough_exceptions=(ProviderContractError,),
     )
 
 
@@ -371,15 +369,22 @@ def _run_yfinance_search(*, query: str, count: int) -> list[dict[str, object]]:
 
 
 def _normalize_yfinance_search_quote(
-    quote: Mapping[str, object]
+    quote: Mapping[str, object],
 ) -> dict[str, object] | None:
     symbol = quote.get("symbol")
     if symbol in (None, ""):
         return None
-    name = quote.get("shortname"
-                     ) or quote.get("longname") or quote.get("name") or symbol
-    classify = quote.get("quoteType") or quote.get("typeDisp"
-                                                   ) or quote.get("exchange")
+    name = (
+        quote.get("shortname")
+        or quote.get("longname")
+        or quote.get("name")
+        or symbol
+    )
+    classify = (
+        quote.get("quoteType")
+        or quote.get("typeDisp")
+        or quote.get("exchange")
+    )
     payload = {
         "code": str(symbol),
         "name": str(name),
@@ -406,27 +411,26 @@ def _yfinance_search_row_matches_market(
             or "MUTUALFUND" in classify
         )
     if market_name == "A_stock":
-        return ".SS" in str(row.get("code", "")
-                            ) or ".SZ" in str(row.get("code", ""))
+        return ".SS" in str(row.get("code", "")) or ".SZ" in str(
+            row.get("code", "")
+        )
     return True
 
 
 def _adapt_yfinance_search_request(
-    request_data: Mapping[str, object]
+    request_data: Mapping[str, object],
 ) -> dict[str, object]:
     """把 shared 资料请求翻译为 yfinance 请求参数。"""
     return {
-        "query":
-        str(_get_request_value(request_data, "keyword", "query",
-                               default="")).strip(),
-        "count":
-        int(
+        "query": str(
+            _get_request_value(request_data, "keyword", "query", default="")
+        ).strip(),
+        "count": int(
             _get_request_value(
                 request_data, "result_count", "count", default=5
             )
         ),
-        "market":
-        _get_request_value(request_data, "market", "market_type"),
+        "market": _get_request_value(request_data, "market", "market_type"),
     }
 
 
@@ -438,8 +442,10 @@ def _adapt_yfinance_history_request(
     symbols = _resolve_yfinance_history_symbols(command_key, request_data)
     if len(symbols) != 1:
         raise ProviderContractError(
-            BackendName.YFINANCE, command_key, "adapt",
-            f"yfinance {command_key} 只支持单个标的"
+            BackendName.YFINANCE,
+            command_key,
+            "adapt",
+            f"yfinance {command_key} 只支持单个标的",
         )
     symbol = symbols[0]
     return {
@@ -454,7 +460,7 @@ def _adapt_yfinance_history_request(
 
 
 def _adapt_yfinance_fund_nav_history_request(
-    request_data: Mapping[str, object]
+    request_data: Mapping[str, object],
 ) -> dict[str, object]:
     """把 shared 基金净值历史请求翻译为 yfinance `Ticker.history` 参数。"""
     symbol = _normalize_yfinance_symbol(
@@ -505,7 +511,7 @@ def _adapt_yfinance_profile_request(
 
 
 def _adapt_yfinance_fund_profile_request(
-    request_data: Mapping[str, object]
+    request_data: Mapping[str, object],
 ) -> dict[str, object]:
     """把 shared 基金资料请求翻译为 yfinance 请求参数。"""
     values = _coerce_symbol_list(
@@ -515,15 +521,16 @@ def _adapt_yfinance_fund_profile_request(
     )
     if len(values) != 1:
         raise ProviderContractError(
-            BackendName.YFINANCE, "fund.profile", "adapt",
-            "yfinance fund.profile 只支持单个标的"
+            BackendName.YFINANCE,
+            "fund.profile",
+            "adapt",
+            "yfinance fund.profile 只支持单个标的",
         )
     symbol = _normalize_yfinance_symbol(values[0])
     return {
         "symbol": symbol,
         "ticker": _normalize_yfinance_fund_symbol(symbol),
     }
-
 
 
 def _normalize_yfinance_shared_symbol(
@@ -569,7 +576,7 @@ def _normalize_yfinance_fund_symbol(value: str) -> str:
 
 
 def _build_yfinance_history_kwargs(
-    request_data: Mapping[str, object]
+    request_data: Mapping[str, object],
 ) -> dict[str, object]:
     interval = {
         1: "1m",
@@ -585,32 +592,31 @@ def _build_yfinance_history_kwargs(
             _get_request_value(
                 request_data, "timeframe", "klt", "period", default=101
             )
-        ), "1d"
+        ),
+        "1d",
     )
-    auto_adjust = int(
-        _get_request_value(
-            request_data, "adjustment", "fqt", "adjust", default=1
+    auto_adjust = (
+        int(
+            _get_request_value(
+                request_data, "adjustment", "fqt", "adjust", default=1
+            )
         )
-    ) == 1
+        == 1
+    )
     return {
-        "start":
-        _normalize_yfinance_date(
+        "start": _normalize_yfinance_date(
             _get_request_value(
                 request_data, "start_date", "beg", default="19000101"
             ),
         ),
-        "end":
-        _normalize_yfinance_date(
+        "end": _normalize_yfinance_date(
             _get_request_value(
                 request_data, "end_date", "end", default="20500101"
             ),
         ),
-        "interval":
-        interval,
-        "auto_adjust":
-        auto_adjust,
-        "back_adjust":
-        False,
+        "interval": interval,
+        "auto_adjust": auto_adjust,
+        "back_adjust": False,
     }
 
 
@@ -687,7 +693,8 @@ def _standardize_yfinance_history_frame(
         }
         payload = {
             key: _normalize_scalar(value)
-            for key, value in payload.items() if value is not None
+            for key, value in payload.items()
+            if value is not None
         }
         normalized = normalize_contract_mapping(payload, HISTORY_BARS_CONTRACT)
         ensure_mapping_has_required_fields(normalized, HISTORY_BARS_CONTRACT)
@@ -720,6 +727,7 @@ def _standardize_yfinance_fund_nav_history_frame(
         normalized_rows.append(normalized)
     return normalized_rows
 
+
 def _resolve_yfinance_realtime_symbols(
     command_key: str,
     request_data: Mapping[str, object],
@@ -735,8 +743,10 @@ def _resolve_yfinance_realtime_symbols(
     )
     if len(values) != 1:
         raise ProviderContractError(
-            BackendName.YFINANCE, command_key, "adapt",
-            f"yfinance {command_key} 只支持单个标的"
+            BackendName.YFINANCE,
+            command_key,
+            "adapt",
+            f"yfinance {command_key} 只支持单个标的",
         )
     if execution_limit is not None:
         values = values[:execution_limit]
@@ -755,7 +765,6 @@ def _resolve_yfinance_realtime_symbols(
             }
         )
     return symbols
-
 
 
 def _extract_yfinance_fast_info(ticker) -> dict[str, object]:
@@ -778,30 +787,25 @@ def _extract_yfinance_history_metadata(ticker) -> dict[str, object]:
 def _extract_yfinance_funds_data(ticker) -> dict[str, object]:
     funds_data = ticker.funds_data
     return {
-        "description":
-        _normalize_scalar(getattr(funds_data, "description", None)),
-        "fund_overview":
-        _materialize_provider_payload(
+        "description": _normalize_scalar(
+            getattr(funds_data, "description", None)
+        ),
+        "fund_overview": _materialize_provider_payload(
             getattr(funds_data, "fund_overview", None)
         ),
-        "fund_operations":
-        _materialize_provider_payload(
+        "fund_operations": _materialize_provider_payload(
             getattr(funds_data, "fund_operations", None)
         ),
-        "asset_classes":
-        _materialize_provider_payload(
+        "asset_classes": _materialize_provider_payload(
             getattr(funds_data, "asset_classes", None)
         ),
-        "top_holdings":
-        _materialize_provider_payload(
+        "top_holdings": _materialize_provider_payload(
             getattr(funds_data, "top_holdings", None)
         ),
-        "bond_ratings":
-        _materialize_provider_payload(
+        "bond_ratings": _materialize_provider_payload(
             getattr(funds_data, "bond_ratings", None)
         ),
-        "sector_weightings":
-        _materialize_provider_payload(
+        "sector_weightings": _materialize_provider_payload(
             getattr(funds_data, "sector_weightings", None)
         ),
     }
@@ -820,8 +824,10 @@ def _resolve_yfinance_profile_symbol(
     )
     if len(values) != 1:
         raise ProviderContractError(
-            BackendName.YFINANCE, command_key, "adapt",
-            f"yfinance {command_key} 只支持单个标的"
+            BackendName.YFINANCE,
+            command_key,
+            "adapt",
+            f"yfinance {command_key} 只支持单个标的",
         )
     return _normalize_yfinance_symbol(values[0])
 
@@ -831,11 +837,15 @@ def _resolve_yfinance_profile_market(
     quote_info: Mapping[str, object],
     metadata: Mapping[str, object],
 ) -> str:
-    market = quote_info.get("market") or quote_info.get(
-        "quoteType"
-    ) or metadata.get("instrumentType")
+    market = (
+        quote_info.get("market")
+        or quote_info.get("quoteType")
+        or metadata.get("instrumentType")
+    )
     if market in (None, ""):
-        if symbol.endswith((".SS", ".SZ")) or (symbol.isdigit() and len(symbol) == 6):
+        if symbol.endswith((".SS", ".SZ")) or (
+            symbol.isdigit() and len(symbol) == 6
+        ):
             return "A_stock"
         return "US_stock"
     return str(market)
@@ -851,28 +861,25 @@ def _build_yfinance_realtime_row(
     quote_info = _extract_yfinance_quote_info(ticker)
     metadata = _extract_yfinance_history_metadata(ticker)
     payload = {
-        "symbol":
-        symbol,
+        "symbol": symbol,
         "name": (
-            quote_info.get("shortName") or quote_info.get("longName")
-            or metadata.get("shortName") or symbol
+            quote_info.get("shortName")
+            or quote_info.get("longName")
+            or metadata.get("shortName")
+            or symbol
         ),
-        "close":
-        fast_info.get("lastPrice") or metadata.get("regularMarketPrice"),
-        "quote_id":
-        symbol,
-        "market":
-        _resolve_yfinance_realtime_market(
+        "close": fast_info.get("lastPrice")
+        or metadata.get("regularMarketPrice"),
+        "quote_id": symbol,
+        "market": _resolve_yfinance_realtime_market(
             command_key, symbol, quote_info, metadata
         ),
-        "open":
-        fast_info.get("open") or metadata.get("regularMarketOpen"),
-        "high":
-        fast_info.get("dayHigh") or metadata.get("regularMarketDayHigh"),
-        "low":
-        fast_info.get("dayLow") or metadata.get("regularMarketDayLow"),
-        "volume":
-        fast_info.get("lastVolume") or metadata.get("regularMarketVolume"),
+        "open": fast_info.get("open") or metadata.get("regularMarketOpen"),
+        "high": fast_info.get("dayHigh")
+        or metadata.get("regularMarketDayHigh"),
+        "low": fast_info.get("dayLow") or metadata.get("regularMarketDayLow"),
+        "volume": fast_info.get("lastVolume")
+        or metadata.get("regularMarketVolume"),
     }
     normalized = normalize_contract_mapping(payload, REALTIME_QUOTES_CONTRACT)
     ensure_mapping_has_required_fields(normalized, REALTIME_QUOTES_CONTRACT)
@@ -891,7 +898,9 @@ def _resolve_yfinance_realtime_market(
     market = quote_info.get("market") or metadata.get("exchangeName")
     if market not in (None, ""):
         return str(market)
-    if symbol.endswith((".SS", ".SZ")) or (symbol.isdigit() and len(symbol) == 6):
+    if symbol.endswith((".SS", ".SZ")) or (
+        symbol.isdigit() and len(symbol) == 6
+    ):
         return "A_stock"
     return "US_stock"
 
@@ -906,8 +915,9 @@ def build_yfinance_provider() -> BackendProvider:
         "stock.price.history": YfinanceHistoryHandler("stock.price.history"),
         "quote.price.history": YfinanceHistoryHandler("quote.price.history"),
         "stock.price.latest": YfinanceRealtimeHandler("stock.price.latest"),
-        "stock.price.snapshot":
-        YfinanceRealtimeHandler("stock.price.snapshot"),
+        "stock.price.snapshot": YfinanceRealtimeHandler(
+            "stock.price.snapshot"
+        ),
         "quote.price.latest": YfinanceRealtimeHandler("quote.price.latest"),
         "stock.profile": YfinanceProfileHandler("stock.profile"),
         "quote.profile": YfinanceProfileHandler("quote.profile"),
@@ -945,7 +955,7 @@ def build_yfinance_provider() -> BackendProvider:
                 ),
                 help_text="获取 Yahoo Finance 新闻列表（yfinance 专属扩展）。",
                 kind=CommandKind.PROVIDER_EXTENSION,
-                supported_backends=(BackendName.YFINANCE, ),
+                supported_backends=(BackendName.YFINANCE,),
                 allow_watch=False,
                 has_side_effect=False,
                 provider_name=BackendName.YFINANCE,
