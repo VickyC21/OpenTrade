@@ -259,13 +259,19 @@ class AkshareSearchHandler(CapabilityHandler):
             return rows
 
         if classify == "fund":
+            code_column = "基金代码"
+            name_column = "基金简称"
+            pinyin_column = "拼音缩写"
             for _, row in frame.iterrows():
+                code = str(row.get(code_column, "")).strip()
+                name = str(row.get(name_column, "")).strip() or code
+                pinyin = str(row.get(pinyin_column, "")).strip() or None
                 item = {
-                    "code": str(row.get("基金代码", "")).strip(),
-                    "name": str(row.get("基金代码", "")).strip(),
-                    "pinyin": str(row.get("基金代码", "")).strip() or None,
-                    "quote_id": str(row.get("基金代码", "")).strip(),
-                    "classify": str(row.get("基金代码", "")).strip() or classify,
+                    "code": code,
+                    "name": name,
+                    "pinyin": pinyin,
+                    "quote_id": code,
+                    "classify": classify,
                 }
                 self._append_if_valid(rows, item)
             return rows

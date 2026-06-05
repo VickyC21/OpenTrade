@@ -196,6 +196,8 @@ def _validate_semantic_field(field: RequestField, value: Any) -> None:
     semantic_type = field.semantic_type or field.name
     if semantic_type == "market":
         _validate_market_name(value)
+    if semantic_type in {"symbol", "symbols"}:
+        _validate_identifier_shape(field, value)
     if field.name == "symbol" and value in (None, ""):
         raise click.ClickException(
             f"Missing required option '--{field.cli_name}'."

@@ -301,6 +301,40 @@ class SchemaAndResolverTest(unittest.TestCase):
         self.assertEqual(selection.resolved, BackendName.EFINANCE)
         self.assertEqual(selection.source, "command-default")
 
+    def test_shared_quote_identifier_rejects_eastmoney_quote_id(self) -> None:
+        definition = get_shared_command_definition("quote.price.latest")
+        with self.assertRaises(click.ClickException) as ctx:
+            validate_request_data(
+                definition.request_schema,
+                {
+                    "symbols": ["1.000001"],
+                },
+            )
+        self.assertIn("Eastmoney quote_id", str(ctx.exception))
+
+    def test_quote_auto_planning_filters_out_non_truthful_candidates(self) -> None:
+        definition = get_shared_command_definition("quote.price.latest")
+        chain = plan_auto_backend_candidates(
+            definition,
+            {
+                "symbols": ["AAPL", "MSFT"],
+                "market": "US_stock",
+            },
+        )
+        self.assertEqual(chain, (BackendName.EFINANCE,))
+
+    def test_stock_price_latest_a_share_request_does_not_advertise_batch_yfinance(self) -> None:
+        definition = get_shared_command_definition("stock.price.latest")
+        chain = plan_auto_backend_candidates(
+            definition,
+            {
+                "symbols": ["000001", "000002"],
+                "market": "A_stock",
+            },
+        )
+        self.assertEqual(chain, (BackendName.EFINANCE,))
+
+
 
 if __name__ == "__main__":
     unittest.main()

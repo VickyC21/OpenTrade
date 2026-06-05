@@ -290,12 +290,7 @@ def _adapt_efinance_shared_request(
             request_data, code_field_name="codes"
         )
     if command_key == "quote.price.latest":
-        quote_ids = _coerce_request_sequence(
-            request_data,
-            "quote_ids",
-            "quote_id_list",
-            "quote_id",
-        )
+        quote_ids = _resolve_efinance_quote_ids(request_data, command_key)
         if execution_limit is not None:
             quote_ids = quote_ids[:execution_limit]
         return {
@@ -303,14 +298,7 @@ def _adapt_efinance_shared_request(
         }
     if command_key == "quote.profile":
         return {
-            "quote_id":
-            _get_single_request_value(
-                request_data,
-                command_key,
-                "quote_id",
-                "quote_ids",
-                "symbol",
-            ),
+            "quote_id": _resolve_efinance_quote_id(request_data, command_key),
         }
     if command_key == "stock.holders.latest-count":
         return {
@@ -356,8 +344,6 @@ def _resolve_efinance_quote_ids(
     symbols = _coerce_request_sequence(
         request_data,
         "symbols",
-        "quote_ids",
-        "quote_id_list",
         "symbol",
     )
     return [efinance.utils.get_quote_id(symbol) for symbol in symbols]
@@ -373,8 +359,6 @@ def _resolve_efinance_quote_id(
         command_key,
         "symbol",
         "symbols",
-        "quote_id",
-        "quote_ids",
     )
     return efinance.utils.get_quote_id(symbol)
 

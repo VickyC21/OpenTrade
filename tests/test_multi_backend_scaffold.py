@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 
@@ -25,6 +25,13 @@ from opentrade.command_catalog import (
 )
 from opentrade.facade import AutoBackendExecutionError, CommandFacade
 from opentrade.models import BackendName, BackendSelection, StandardResult
+
+
+def _build_mock_yfinance_module() -> tuple[object, Mock]:
+    module = type("YfinanceModule", (), {})()
+    mock_ticker = Mock()
+    module.Ticker = mock_ticker
+    return module, mock_ticker
 
 
 class MultiBackendScaffoldTest(unittest.TestCase):
@@ -567,7 +574,7 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                     resolved=BackendName.EFINANCE,
                     source="default"
                 ),
-                {"quote_id": "1.000001"},
+                {"symbol": "000001"},
             )
         self.assertEqual(result.contract_name, "profile-info")
         self.assertEqual(result.data["code"], "1.000001")
@@ -605,12 +612,12 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                     resolved=BackendName.EFINANCE,
                     source="explicit"
                 ),
-                {"quote_ids": ["1.000001", "0.399001", "105.AAPL"]},
+                {"symbols": ["000001", "399001", "AAPL"]},
                 execution_limit=2,
             )
 
         mock_quote.assert_called_once_with(
-            quote_id_list=["1.000001", "0.399001"]
+            quote_id_list=["0.000001", "0.399001"]
         )
         self.assertTrue(result.metadata["execution_limit_applied"])
         self.assertEqual(
@@ -638,9 +645,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                     resolved=BackendName.EFINANCE,
                     source="default"
                 ),
-                {"quote_ids": ["1.000001"]},
+                {"symbols": ["000001"]},
             )
-        mock_quote.assert_called_once_with(quote_id_list="1.000001")
+        mock_quote.assert_called_once_with(quote_id_list="0.000001")
         self.assertEqual(result.contract_name, "realtime-quotes")
         self.assertEqual(result.data[0]["market"], "quote")
 
@@ -709,7 +716,11 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                 "quoteType": "ETF"
             },
         ]
-        with patch("yfinance.Search") as mock_search:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module = type("YfinanceModule", (), {})()
+            mock_search = Mock()
+            module.Search = mock_search
+            mock_loader.return_value = module
             mock_search.return_value.quotes = payload
             result = facade.invoke(
                 definition,
@@ -754,7 +765,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
         )
         definition = get_shared_command_definition("stock.price.history")
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.history.return_value = frame
             result = facade.invoke(
                 definition,
@@ -790,7 +803,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
     ) -> None:
         definition = get_command_definition("quote.price.latest")
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.fast_info.keys.return_value = [
                 "lastPrice",
                 "open",
@@ -819,7 +834,7 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                     resolved=BackendName.YFINANCE,
                     source="explicit"
                 ),
-                {"quote_ids": ["AAPL"]},
+                {"symbols": ["AAPL"]},
             )
         mock_ticker.assert_called_once_with("AAPL")
         self.assertEqual(result.contract_name, "realtime-quotes")
@@ -842,7 +857,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
         )
         definition = get_command_definition("quote.price.history")
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.history.return_value = frame
             result = facade.invoke(
                 definition,
@@ -876,7 +893,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
     def test_yfinance_profile_handler_returns_standard_result(self) -> None:
         definition = get_shared_command_definition("stock.profile")
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.info = {
                 "shortName": "Apple Inc.",
                 "market": "US_stock",
@@ -922,7 +941,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
     ) -> None:
         definition = get_command_definition("fund.profile")
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.info = {
                 "shortName": "Vanguard Total Stock Market ETF",
                 "market": "fund",
@@ -982,7 +1003,9 @@ class MultiBackendScaffoldTest(unittest.TestCase):
         definition = get_backend_provider(BackendName.YFINANCE
                                           ).extension_commands[0]
         facade = CommandFacade()
-        with patch("yfinance.Ticker") as mock_ticker:
+        with patch("opentrade.backends.yfinance_provider._load_yfinance_module") as mock_loader:
+            module, mock_ticker = _build_mock_yfinance_module()
+            mock_loader.return_value = module
             mock_ticker.return_value.news = [
                 {
                     "title": "Apple launches new product",
@@ -997,7 +1020,7 @@ class MultiBackendScaffoldTest(unittest.TestCase):
                     source="explicit"
                 ),
                 {
-                    "quote_id": "AAPL",
+                    "symbol": "AAPL",
                     "result_count": 5
                 },
             )

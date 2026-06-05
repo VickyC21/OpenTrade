@@ -1155,24 +1155,24 @@ def build_html_report(payload: dict[str, Any]) -> str:
         "        <h3>请求 backend 分布</h3>",
         (
             "        <table>"
-            f"{render_counter_table(
-                summary['backend_counter'],
-                'requested_backend',
-                '用例数',
-            )}"
-            "</table>"
+            + render_counter_table(
+                summary["backend_counter"],
+                "requested_backend",
+                "用例数",
+            )
+            + "</table>"
         ),
         "      </div>",
         "      <div class='panel' style='margin-top:1rem;'>",
         "        <h3>运行模式命中统计</h3>",
         (
             "        <table>"
-            f"{render_counter_table(
-                summary['runtime_tag_counter'],
-                '运行模式',
-                '命中次数',
-            )}"
-            "</table>"
+            + render_counter_table(
+                summary["runtime_tag_counter"],
+                "运行模式",
+                "命中次数",
+            )
+            + "</table>"
         ),
         "      </div>",
         "    </section>",
