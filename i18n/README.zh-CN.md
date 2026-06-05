@@ -566,10 +566,29 @@ opentrade quote price latest --symbols NVDA</code></pre>
     </td>
     <td width="50%" valign="top">
       <strong>市场级实时扫描</strong>
-      <pre lang="bash"><code>opentrade market price live --market m:105+t:3 --format json</code></pre>
+      <pre lang="bash"><code>opentrade market price live --market US_stock --format json</code></pre>
     </td>
   </tr>
 </table>
+
+<a id="yahoo-finance-backend"></a>
+## Yahoo Finance 后端
+
+`yfinance` 现在已经作为一组聚焦共享命令的一等后端接入。需要明确使用 Yahoo Finance 数据时，请传入 `--backend yfinance`，并注意以下边界：
+
+- 当前支持的共享覆盖范围包括搜索、股票和行情历史、行情最新值、按条件执行的股票最新值/快照，以及股票和行情资料。
+- Yahoo 专有能力目前从 `quote news` 开始，它以 provider-extension 命令暴露，而不是伪装成 backend-agnostic 能力。
+- 标的语义优先遵循 Yahoo ticker。典型输入如 `AAPL`、`MSFT`、`0700.HK`、`9988.HK`；A 股 symbol 只会在股票路径上做转换，并不是所有境内市场写法都能被安全推断。
+- 当前 yfinance 在共享 stock/quote 路径上的执行基本等价于单标的。批量历史或批量最新值请求，优先使用 `efinance` 或 `akshare`。
+- `fund nav history` 和 `fund profile` 不是共享 yfinance 命令。如果你需要通过 Yahoo 获取基金数据，应在 provider-specific 工作流里传入 Yahoo 基金 ticker，而不是大陆基金代码。
+- 共享 `quote` 命令使用 symbol / ticker 输入；`--quote-ids` 别名只是兼容保留，不应理解成必须传东方财富 `quote_id`。
+- 是否做 live smoke 验证被刻意设计为可选，因为 Yahoo 即使在请求合法时也可能显式返回限流失败。
+
+```bash
+opentrade search --query AAPL --backend yfinance --format json
+opentrade quote price latest --symbols AAPL --backend yfinance --format json
+opentrade quote news --quote-id AAPL --result-count 5 --format json
+```
 
 <a id="notes"></a>
 ## 说明

@@ -566,7 +566,7 @@ opentrade quote price latest --symbols NVDA</code></pre>
     </td>
     <td width="50%" valign="top">
       <strong>Market-level live scan</strong>
-      <pre lang="bash"><code>opentrade market price live --market m:105+t:3 --format json</code></pre>
+      <pre lang="bash"><code>opentrade market price live --market US_stock --format json</code></pre>
     </td>
   </tr>
 </table>
@@ -576,9 +576,11 @@ opentrade quote price latest --symbols NVDA</code></pre>
 
 `yfinance` is now a first-class backend for a focused subset of shared commands. Use `--backend yfinance` when you want Yahoo Finance data explicitly, and keep the following boundaries in mind:
 
-- Supported shared coverage includes search, stock and quote history, quote latest, conditional stock latest/snapshot, stock and quote profile, fund NAV history, and fund profile.
+- Supported shared coverage includes search, stock and quote history, quote latest, conditional stock latest/snapshot, and stock and quote profile.
 - Yahoo-only capability currently starts with `quote news`, exposed as a provider-extension command instead of pretending to be backend-agnostic.
-- Symbol semantics follow Yahoo tickers first. Typical inputs are `AAPL`, `MSFT`, `0700.HK`, or `9988.HK`; not every domestic-market symbol style can be inferred safely.
+- Symbol semantics follow Yahoo tickers first. Typical inputs are `AAPL`, `MSFT`, `0700.HK`, or `9988.HK`; A-share symbols are only translated on the stock paths, and not every domestic-market symbol style can be inferred safely.
+- Current yfinance shared execution is effectively single-target on the stock/quote paths. For batch history or batch latest requests, prefer `efinance` or `akshare`.
+- `fund nav history` and `fund profile` are not shared yfinance commands. If you need fund data through Yahoo, pass a Yahoo fund ticker through provider-specific workflows instead of mainland fund codes.
 - Shared `quote` commands use symbol/ticker inputs; the `--quote-ids` alias remains for compatibility but should not be read as an 东方财富 `quote_id` requirement.
 - Live smoke verification is intentionally optional because Yahoo may return explicit rate-limit failures even for valid requests.
 
