@@ -11,6 +11,7 @@
   </p>
   <p>
     <a href="#installation">安裝</a> ·
+    <a href="#agent-skills">Agent Skills</a> ·
     <a href="#quick-start">快速開始</a> ·
     <a href="#command-tree">命令樹</a> ·
     <a href="#output-and-defaults">輸出與預設值</a> ·
@@ -36,6 +37,16 @@ opentrade --help
 ```
 
 執行環境要求為 Python `3.10+`。
+
+## Agent Skills
+
+OpenTrade 也提供面向 Codex、Claude Code 與其他 Agent 的 skill，用於自動投研工作流。
+
+當你希望 Agent 幫你安裝這些 skill 時，只需要直接說：
+
+> Please install skills from [vortezwohl/OpenTrade](https://github.com/vortezwohl/OpenTrade), and place them in my global user skill directory.
+
+這些 skill 主要用於股票、基金、債券、期貨與更廣義市場場景下的自動化投研分析。
 
 ## 快速開始
 

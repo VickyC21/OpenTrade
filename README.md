@@ -11,6 +11,7 @@
   </p>
   <p>
     <a href="#installation">Installation</a> ·
+    <a href="#agent-skills">Agent Skills</a> ·
     <a href="#quick-start">Quick start</a> ·
     <a href="#command-tree">Command tree</a> ·
     <a href="#output-and-defaults">Output and defaults</a> ·
@@ -36,6 +37,16 @@ opentrade --help
 ```
 
 Python `3.10+` is required.
+
+## Agent Skills
+
+OpenTrade also provides agent skills for automated investment research workflows.
+
+When you want Codex, Claude Code, or another coding agent to install them, just say:
+
+> Please install skills from [vortezwohl/OpenTrade](https://github.com/vortezwohl/OpenTrade), and place them in my global user skill directory.
+
+These skills are designed for automated research across stocks, funds, bonds, futures, and broader market workflows.
 
 ## Quick Start
 
